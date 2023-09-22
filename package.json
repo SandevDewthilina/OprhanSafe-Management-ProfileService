@@ -1,0 +1,33 @@
+{
+  "name": "orphansafe-management-notificationservice",
+  "version": "1.0.0",
+  "description": "notificationservice for orphansafe backend",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SandevDewthilina/OrphanSafe-Management-NotificationService.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SandevDewthilina/OrphanSafe-Management-NotificationService/issues"
+  },
+  "homepage": "https://github.com/SandevDewthilina/OrphanSafe-Management-NotificationService#readme",
+  "dependencies": {
+    "amqplib": "^0.10.3",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-async-handler": "^1.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "nodemon": "^3.0.1",
+    "pg": "^8.11.3",
+    "uuid": "^9.0.0"
+  }
+}
