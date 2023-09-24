@@ -6,8 +6,10 @@ import DatabaseHandler from "../lib/database/DatabaseHandler.js";
  */
 
 export const getChildProfilesAsync = async () => {
-  const results = await DatabaseHandler.executeSingleQueryAsync('SELECT * FROM "ChildProfile"', []);
-  return results;
+  const results = await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT "FirstName", "LastName", "DateOfBirth",
+  "Gender","GuardianInfo" FROM "ChildProfile"`, []);
+  return results; 
 };
 
 export const getStaffProfileListAsync = async() =>{
@@ -93,7 +95,9 @@ export const editParentProfileAsync = async() =>{
  */
 
 export const viewChildProfilesAsync = async () => {
-  const results = await DatabaseHandler.executeSingleQueryAsync('', []);
+  const results = await DatabaseHandler.executeSingleQueryAsync( `SELECT "FirstName", "MiddleNames", "LastName", "DateOfBirth",
+  "Gender", "DateOfAdmission", "DateOfEntry", "Country", "City",
+  "GuardianInfo" FROM "ChildProfile"`, []);
   return results;
 };
 
