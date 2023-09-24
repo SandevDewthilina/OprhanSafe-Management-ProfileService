@@ -1,7 +1,7 @@
 import asyncHandler from "express-async-handler";
 import {
-  getChildProfilesAsync, getStaffProfileListAsync,getSocialWorkerProfileListAsync,
-  getParentProfileListAsync,
+  getChildProfilesAsync, getStaffProfileListAsync,getSocialWorkerProfileListAsync,getParentProfileListAsync,
+  createChildProfileAsync,createStaffProfileAsync,createSocialWorkerProfileAsync,createParentProfileAsync
 } from "../services/profileService.js";
 import { notFound } from "../middleware/errorMiddleware.js";
 
@@ -61,3 +61,34 @@ export const getParentProfileList = asyncHandler(async(req,res)=>{
  * Create Profiles
  */
 
+export const createChildProfile = asyncHandler(async(req,res)=>{
+  const results = await createChildProfileAsync();
+  return res.status(200).json({
+    success:true,
+    childProfile:results
+  })
+});
+
+export const createStaffProfile = asyncHandler(async(req,res)=>{
+  const results = await createStaffProfileAsync();
+  return res.status(200).json({
+    success:true,
+    staffProfile:results
+  })
+});
+
+export const createSocialWorkerProfile = asyncHandler(async(req,res)=>{
+  const results = await createSocialWorkerProfileAsync();
+  return res.status(200).json({
+    success:true,
+    socialWorkerProfile:results
+  })
+});
+
+export const createParentProfile = asyncHandler(async(req,res)=>{
+  const results = await createParentProfileAsync();
+  return res.status(200).json({
+    success:true,
+    parentProfile:results
+  })
+});

@@ -13,17 +13,53 @@ export const getChildProfilesAsync = async () => {
 };
 
 export const getStaffProfileListAsync = async() =>{
-  const results= await DatabaseHandler.executeSingleQueryAsync('',[]);
+  const results= await DatabaseHandler.executeSingleQueryAsync(`SELECT
+    "User"."Id",
+    "User"."Username",
+    "User"."Name",
+    "User"."Email"
+FROM
+  "User"
+INNER JOIN
+  "UserRole" ON "User"."Id" = "UserRole"."UserId"
+INNER JOIN
+  "Role" ON "UserRole"."RoleId" = "Role"."Id"
+WHERE
+  "Role"."Name" = 'admin'`,[]);
   return results;
 }
 
 export const getSocialWorkerProfileListAsync = async() =>{
-  const results= await DatabaseHandler.executeSingleQueryAsync('',[]);
+  const results= await DatabaseHandler.executeSingleQueryAsync(`SELECT
+  "User"."Id",
+  "User"."Username",
+  "User"."Name",
+  "User"."Email"
+FROM
+"User"
+INNER JOIN
+"UserRole" ON "User"."Id" = "UserRole"."UserId"
+INNER JOIN
+"Role" ON "UserRole"."RoleId" = "Role"."Id"
+WHERE
+"Role"."Name" = 'socialWorker'`,[]);
   return results;
 }
 
 export const getParentProfileListAsync = async() =>{
-  const results= await DatabaseHandler.executeSingleQueryAsync('',[]);
+  const results= await DatabaseHandler.executeSingleQueryAsync(`SELECT
+  "User"."Id",
+  "User"."Username",
+  "User"."Name",
+  "User"."Email"
+FROM
+"User"
+INNER JOIN
+"UserRole" ON "User"."Id" = "UserRole"."UserId"
+INNER JOIN
+"Role" ON "UserRole"."RoleId" = "Role"."Id"
+WHERE
+"Role"."Name" = 'parent'`,[]);
   return results;
 }
 
@@ -33,8 +69,10 @@ export const getParentProfileListAsync = async() =>{
  * Create Profiles
  */
 
-export const createChildProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync('',[]);
+export const createChildProfileAsync = async(FirstName,MiddleNames, LastName,DateOfBirth,Gender,DateOfAdmission,DateOfEntry,Country,City,GuardianInfo) =>{
+   
+  return await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "ChildProfile" ("FirstName", "MiddleNames", "LastName","DateOfBirth","Gender","DateOfAdmission","DateOfEntry","Country","City","GuardianInfo","GuardianId") values(?,?,?,?,?,?,?,?,?,?,?)`,
+  [FirstName,MiddleNames,LastName,DateOfBirth,Gender,DateOfAdmission,DateOfEntry,Country,City,GuardianInfo]);
 }
 
 export const createStaffProfileAsync = async() =>{
@@ -46,7 +84,7 @@ export const createSocialWorkerProfileAsync = async() =>{
 }
 
 export const createParentProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync('',[]);
+  await DatabaseHandler.executeSingleQueryAsync(``,[]);
 }
 
 /**

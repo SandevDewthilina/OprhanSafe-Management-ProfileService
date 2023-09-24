@@ -25,3 +25,5 @@ INSERT INTO "Role" (
 
 INSERT INTO "ChildProfile" ("FirstName", "MiddleNames", "LastName","DateOfBirth","Gender","DateOfAdmission","DateOfEntry","Country","City","GuardianInfo","GuardianId") VALUES ('Kamal','Sahan','Perera','2016-06-22 19:10:25-07','Male','Jan-08-1999','Jan-08-1999','Srilanka','Kalutara','Teacher','072d6328-ed13-4dbd-9c7f-7fc702037780');
 SELECT * FROM "ChildProfile";
+
+INSERT INTO "UserRole" ("UserId", "RoleId")VALUES('072d6328-ed13-4dbd-9c7f-7fc702037780','2968d631-591b-4265-b374-747e19848ddc');
