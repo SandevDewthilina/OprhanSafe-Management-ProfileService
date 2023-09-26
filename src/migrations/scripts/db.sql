@@ -27,3 +27,22 @@ INSERT INTO "ChildProfile" ("FirstName", "MiddleNames", "LastName","DateOfBirth"
 SELECT * FROM "ChildProfile";
 
 INSERT INTO "UserRole" ("UserId", "RoleId")VALUES('072d6328-ed13-4dbd-9c7f-7fc702037780','2968d631-591b-4265-b374-747e19848ddc');
+
+
+  SELECT
+    "Id",
+    "FirstName",
+    "MiddleNames",
+    "LastName",
+    "DateOfBirth",
+    "Gender",
+    "DateOfAdmission",
+    "DateOfEntry",
+    "Country",
+    "City",
+    "GuardianInfo",
+    "GuardianId"
+FROM
+    "ChildProfile"
+WHERE
+    "Id" = '892be416-9383-421b-98d3-abcdeabd3d59';

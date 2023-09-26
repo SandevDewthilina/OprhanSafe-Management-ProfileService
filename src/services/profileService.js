@@ -71,7 +71,7 @@ WHERE
 
 export const createChildProfileAsync = async(FirstName,MiddleNames, LastName,DateOfBirth,Gender,DateOfAdmission,DateOfEntry,Country,City,GuardianInfo) =>{
    
-  return await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "ChildProfile" ("FirstName", "MiddleNames", "LastName","DateOfBirth","Gender","DateOfAdmission","DateOfEntry","Country","City","GuardianInfo","GuardianId") values(?,?,?,?,?,?,?,?,?,?,?)`,
+  return await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "ChildProfile" ("FirstName", "MiddleNames", "LastName","DateOfBirth","Gender","DateOfAdmission","DateOfEntry","Country","City","GuardianInfo","GuardianId") values($1,?,?,?,?,?,?,?,?,?,?)`,
   [FirstName,MiddleNames,LastName,DateOfBirth,Gender,DateOfAdmission,DateOfEntry,Country,City,GuardianInfo]);
 }
 
@@ -132,24 +132,37 @@ export const editParentProfileAsync = async() =>{
  * View profiles by managers
  */
 
-export const viewChildProfilesAsync = async () => {
-  const results = await DatabaseHandler.executeSingleQueryAsync( `SELECT "FirstName", "MiddleNames", "LastName", "DateOfBirth",
-  "Gender", "DateOfAdmission", "DateOfEntry", "Country", "City",
-  "GuardianInfo" FROM "ChildProfile"`, []);
+export const viewChildProfilesAsync = async (id) => {
+  const results = await DatabaseHandler.executeSingleQueryAsync( `  SELECT
+  "Id",
+  "FirstName",
+  "MiddleNames",
+  "LastName",
+  "DateOfBirth",
+  "Gender",
+  "DateOfAdmission",
+  "DateOfEntry",
+  "Country",
+  "City",
+  "GuardianInfo"
+FROM
+  "ChildProfile"
+WHERE
+  "Id" = $1"`, [id]);
   return results;
 };
 
-export const viewStaffProfileListAsync = async() =>{
+export const viewStaffProfileAsync = async() =>{
   const results= await DatabaseHandler.executeSingleQueryAsync('',[]);
   return results;
 }
 
-export const viewSocialWorkerProfileListAsync = async() =>{
+export const viewSocialWorkerProfileAsync = async() =>{
   const results= await DatabaseHandler.executeSingleQueryAsync('',[]);
   return results;
 }
 
-export const viewParentProfileListAsync = async() =>{
+export const viewParentProfileAsync = async() =>{
   const results= await DatabaseHandler.executeSingleQueryAsync('',[]);
   return results;
 }
@@ -195,4 +208,12 @@ export const getChildProfileCountAdminAsync = async() =>{
 export const getStaffCountStaffAsync = async() =>{
   return await DatabaseHandler.executeSingleQueryAsync('',[]);
 };
+
+export const getUserByUsernameAsync = async (username) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    'SELECT * FROM "User" WHERE "Username" = $1 LIMIT 1',
+    [username]
+  );
+};
+
 

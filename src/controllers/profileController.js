@@ -1,7 +1,12 @@
 import asyncHandler from "express-async-handler";
 import {
   getChildProfilesAsync, getStaffProfileListAsync,getSocialWorkerProfileListAsync,getParentProfileListAsync,
-  createChildProfileAsync,createStaffProfileAsync,createSocialWorkerProfileAsync,createParentProfileAsync
+  createChildProfileAsync,createStaffProfileAsync,createSocialWorkerProfileAsync,createParentProfileAsync,
+  deleteChildProfileAsync, deleteStaffProfileAsync,deleteSocialWorkerProfileAsync,deleteParentProfileAsync,
+  editChildProfileAsync, editStaffProfileAsync,editSocialWorkerProfileAsync,editParentProfileAsync,
+  viewChildProfilesAsync,viewStaffProfileAsync,viewSocialWorkerProfileAsync, viewParentProfileAsync,
+  viewChildInfoExternalAsync, getChildProfileCountAsync,getStaffCountAsync,getChildProfileCountAdminAsync,
+  getStaffCountStaffAsync, getUserByUsernameAsync
 } from "../services/profileService.js";
 import { notFound } from "../middleware/errorMiddleware.js";
 
@@ -62,19 +67,32 @@ export const getParentProfileList = asyncHandler(async(req,res)=>{
  */
 
 export const createChildProfile = asyncHandler(async(req,res)=>{
-  const results = await createChildProfileAsync();
-  return res.status(200).json({
-    success:true,
-    childProfile:results
-  })
+  // const results = await createChildProfileAsync();
+  // return res.status(200).json({
+  //   success:true,
+  //   childProfile:results
+  // })
 });
 
 export const createStaffProfile = asyncHandler(async(req,res)=>{
-  const results = await createStaffProfileAsync();
-  return res.status(200).json({
-    success:true,
-    staffProfile:results
-  })
+  const { email, username, name, phoneNumber, password } = req.body;
+  const results = await getUserByUsernameAsync(username);
+  if (results.length > 0) {
+    res.status(400);
+    throw new Error("User Name Already Exists");
+  } else {
+    const results = await createStaffProfileAsync({
+      email,
+      username,
+      name,
+      phoneNumber,
+    });
+    return res.status(201).json({
+      success: true,
+      userCreated: results,
+    });
+  }
+
 });
 
 export const createSocialWorkerProfile = asyncHandler(async(req,res)=>{
@@ -87,6 +105,156 @@ export const createSocialWorkerProfile = asyncHandler(async(req,res)=>{
 
 export const createParentProfile = asyncHandler(async(req,res)=>{
   const results = await createParentProfileAsync();
+  return res.status(200).json({
+    success:true,
+    parentProfile:results
+  })
+});
+
+/**
+ * Delete Profiles
+ */
+export const deleteChildProfile = asyncHandler(async(req,res)=>{
+  const results = await deleteChildProfileAsync();
+  return res.status(200).json({
+    success:true,
+    parentProfile:results
+  })
+});
+export const deleteStaffProfile = asyncHandler(async(req,res)=>{
+  const results = await deleteStaffProfileAsync();
+  return res.status(200).json({
+    success:true,
+    parentProfile:results
+  })
+});
+export const deleteSocialWorkerProfile = asyncHandler(async(req,res)=>{
+  const results = await deleteSocialWorkerProfileAsync();
+  return res.status(200).json({
+    success:true,
+    parentProfile:results
+  })
+});
+export const deleteParentProfile = asyncHandler(async(req,res)=>{
+  const results = await deleteParentProfileAsync();
+  return res.status(200).json({
+    success:true,
+    parentProfile:results
+  })
+});
+
+
+/**
+ * Edit profiles
+ */
+export const editChildProfile = asyncHandler(async(req,res)=>{
+  const results = await editChildProfileAsync();
+  return res.status(200).json({
+    success:true,
+    parentProfile:results
+  })
+});
+
+export const editStaffProfile = asyncHandler(async(req,res)=>{
+  const results = await editStaffProfileAsync();
+  return res.status(200).json({
+    success:true,
+    parentProfile:results
+  })
+});
+
+export const editSocialWorkerProfile = asyncHandler(async(req,res)=>{
+  const results = await editSocialWorkerProfileAsync();
+  return res.status(200).json({
+    success:true,
+    parentProfile:results
+  })
+});
+
+export const editParentProfile = asyncHandler(async(req,res)=>{
+  const results = await editParentProfileAsync();
+  return res.status(200).json({
+    success:true,
+    parentProfile:results
+  })
+});
+
+/**
+ * View profiles by managers
+ */
+export const viewChildProfiles = asyncHandler(async(req,res)=>{
+  const results = await viewChildProfilesAsync();
+  return res.status(200).json({
+    success:true,
+    parentProfile:results
+  })
+});
+export const viewStaffProfile = asyncHandler(async(req,res)=>{
+  const results = await viewStaffProfileAsync();
+  return res.status(200).json({
+    success:true,
+    parentProfile:results
+  })
+});
+export const viewSocialWorkerProfile = asyncHandler(async(req,res)=>{
+  const results = await viewSocialWorkerProfileAsync();
+  return res.status(200).json({
+    success:true,
+    parentProfile:results
+  })
+});
+export const viewParentProfile = asyncHandler(async(req,res)=>{
+  const results = await viewParentProfileAsync();
+  return res.status(200).json({
+    success:true,
+    parentProfile:results
+  })
+});
+
+
+/**
+ * External party view child profiles
+ */
+
+export const viewChildInfoExternal = asyncHandler(async(req,res)=>{
+  const results = await viewChildInfoExternalAsync();
+  return res.status(200).json({
+    success:true,
+    parentProfile:results
+  })
+});
+
+
+/**
+ * Profile count
+ */
+
+export const getChildProfileCount = asyncHandler(async(req,res)=>{
+  const results = await getChildProfileCountAsync();
+  return res.status(200).json({
+    success:true,
+    parentProfile:results
+  })
+});
+
+export const getStaffCount = asyncHandler(async(req,res)=>{
+  const results = await getStaffCountAsync();
+  return res.status(200).json({
+    success:true,
+    parentProfile:results
+  })
+});
+
+export const getChildProfileCountAdmin = asyncHandler(async(req,res)=>{
+  const results = await getChildProfileCountAdminAsync();
+  return res.status(200).json({
+    success:true,
+    parentProfile:results
+  })
+});
+
+export const getStaffCountStaff = asyncHandler(async(req,res)=>{
+  const results = await getStaffCountStaffAsync();
   return res.status(200).json({
     success:true,
     parentProfile:results
