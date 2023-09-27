@@ -7,59 +7,49 @@ import DatabaseHandler from "../lib/database/DatabaseHandler.js";
 
 export const getChildProfilesAsync = async () => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
-    `SELECT "FirstName", "LastName", "DateOfBirth",
-  "Gender","GuardianInfo" FROM "ChildProfile"`, []);
+    `select "FullName","DOB","Gender","DateOfAdmission" from "ChildProfile";`, []);
   return results; 
 };
 
 export const getStaffProfileListAsync = async() =>{
-  const results= await DatabaseHandler.executeSingleQueryAsync(`SELECT
-    "User"."Id",
-    "User"."Username",
-    "User"."Name",
-    "User"."Email"
+  const results= await DatabaseHandler.executeSingleQueryAsync(`select  "User"."Name" AS "UserName",
+  "User"."Email",
+  "User"."PhoneNumber",
+  "User"."Gender",
+"Role"."Name" AS "RoleName"
 FROM
-  "User"
+"User"
 INNER JOIN
-  "UserRole" ON "User"."Id" = "UserRole"."UserId"
+"UserRole" ON "User"."Id" = "UserRole"."UserId"
 INNER JOIN
-  "Role" ON "UserRole"."RoleId" = "Role"."Id"
+"Role" ON "UserRole"."RoleId" = "Role"."Id"
 WHERE
-  "Role"."Name" = 'admin'`,[]);
+ "Role"."Name" IN ('admin', 'systemManager','orphanageStaff');`,[]);
   return results;
 }
 
 export const getSocialWorkerProfileListAsync = async() =>{
-  const results= await DatabaseHandler.executeSingleQueryAsync(`SELECT
-  "User"."Id",
-  "User"."Username",
-  "User"."Name",
-  "User"."Email"
+  const results= await DatabaseHandler.executeSingleQueryAsync(`select  "User"."Name",
+  "User"."Email",
+  "User"."PhoneNumber",
+  "User"."Gender",
+"SocialWorker"."Organization"
 FROM
 "User"
 INNER JOIN
-"UserRole" ON "User"."Id" = "UserRole"."UserId"
-INNER JOIN
-"Role" ON "UserRole"."RoleId" = "Role"."Id"
-WHERE
-"Role"."Name" = 'socialWorker'`,[]);
+"SocialWorker" ON "User"."Id" = "SocialWorker"."UserId";`,[]);
   return results;
 }
 
 export const getParentProfileListAsync = async() =>{
-  const results= await DatabaseHandler.executeSingleQueryAsync(`SELECT
-  "User"."Id",
-  "User"."Username",
-  "User"."Name",
-  "User"."Email"
+  const results= await DatabaseHandler.executeSingleQueryAsync(`select  "NameOfFather",
+  "NameOfMother",
+ "Email",
+ "MobileOfFather",
+"MobileOfMother",
+"Address"
 FROM
-"User"
-INNER JOIN
-"UserRole" ON "User"."Id" = "UserRole"."UserId"
-INNER JOIN
-"Role" ON "UserRole"."RoleId" = "Role"."Id"
-WHERE
-"Role"."Name" = 'parent'`,[]);
+"Parent";`,[]);
   return results;
 }
 

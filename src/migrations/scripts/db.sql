@@ -46,3 +46,56 @@ FROM
     "ChildProfile"
 WHERE
     "Id" = '892be416-9383-421b-98d3-abcdeabd3d59';
+
+
+select * from "User";
+select * from "ChildProfile";
+INSERT INTO "ChildProfile" ("FullName", "DOB","Gender","DateOfAdmission","Country","City","Nationality","Language","Remark","MedicalDesc","BirthFather","BirthMother","ReasonForPlacement","RegisteredBy"
+) VALUES ('Kamal Perera','2023-09-24 10:00:00','Male','Jan-08-1999','Srilanka','Kalutara','Sri lankan','Sinhala','remarks...', 'medical','piyal pushpakumara','kamala perera','reason','c9e3b830-5a62-468b-8936-c4d9b8c1268d');
+
+INSERT INTO "ChildProfile" (
+    "FullName",
+    "DOB",
+    "Gender",
+    "DateOfAdmission",
+    "Country",
+    "City",
+    "Nationality",
+    "Language",
+    "Remark",
+    "MedicalDesc",
+    "BirthFather",
+    "BirthMother",
+    "ReasonForPlacement",
+    "RegisteredBy"
+    
+) VALUES (
+    'John Doe',                 -- Replace with the full name
+    '2023-09-24 10:00:00',      -- Replace with the date of birth (timestamp)
+    'Male',                     -- Replace with the gender
+    '2023-09-24',               -- Replace with the date of admission (date)
+    'United States',            -- Replace with the country
+    'New York',                 -- Replace with the city
+    'American',                 -- Replace with the nationality
+    'English',                  -- Replace with the language
+    'Some remark',              -- Replace with the remark
+    'Medical description',      -- Replace with the medical description
+    'Johns Father',            -- Replace with the birth father
+    'Janes Mother',            -- Replace with the birth mother
+    'Reason for placement',     -- Replace with the reason for placement
+    'c9e3b830-5a62-468b-8936-c4d9b8c1268d'       
+   
+);
+
+  select  "User"."Name",
+    "User"."Email",
+    "User"."PhoneNumber",
+    "User"."Gender"
+FROM
+  "User"
+INNER JOIN
+  "UserRole" ON "User"."Id" = "UserRole"."UserId"
+INNER JOIN
+  "Role" ON "UserRole"."RoleId" = "Role"."Id"
+WHERE
+   "Role"."Name" IN ('admin', 'systemManger','orphanageStaff');
