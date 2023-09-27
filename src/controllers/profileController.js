@@ -23,10 +23,15 @@ export const getChildProfileList = asyncHandler(async (req, res) => {
   const childProfiles = await getChildProfilesAsync();
   // Remove the timestamp from DateOfBirth
   const formattedChildProfiles = childProfiles.map((profile) => {
-    if (profile["DateOfBirth"]) {
-      const dateOfBirthTimestamp = new Date(profile["DateOfBirth"]);
-      const datePart = dateOfBirthTimestamp.toISOString().split("T")[0];
-      profile["DateOfBirth"] = datePart;
+    if (profile["DOB"]) {
+      const DOBTimestamp = new Date(profile["DOB"]);
+      const datePart = DOBTimestamp.toISOString().split("T")[0];
+      profile["DOB"] = datePart;
+    }
+    if (profile["DateOfAdmission"]) {
+      const DateOfAdmissionTimestamp = new Date(profile["DateOfAdmission"]);
+      const datePart = DateOfAdmissionTimestamp.toISOString().split("T")[0];
+      profile["DateOfAdmission"] = datePart;
     }
     return profile;
   });
@@ -67,11 +72,40 @@ export const getParentProfileList = asyncHandler(async(req,res)=>{
  */
 
 export const createChildProfile = asyncHandler(async(req,res)=>{
-  // const results = await createChildProfileAsync();
-  // return res.status(200).json({
-  //   success:true,
-  //   childProfile:results
-  // })
+  const {
+    FullName,
+    DOB,
+    Gender,
+    DateOfAdmission,
+    Country,
+    City,
+    Nationality,
+    Language,
+    Remark,
+    MedicalDesc,
+    BirthFather,
+    BirthMother,
+    ReasonForPlacement,
+    RegisteredBy,
+  } = req.body;
+  await createChildProfileAsync(FullName,
+    DOB,
+    Gender,
+    DateOfAdmission,
+    Country,
+    City,
+    Nationality,
+    Language,
+    Remark,
+    MedicalDesc,
+    BirthFather,
+    BirthMother,
+    ReasonForPlacement,
+    RegisteredBy,);
+  return res.status(200).json({
+    success:true,
+    message: "successfully created a child profile",
+   })
 });
 
 export const createStaffProfile = asyncHandler(async(req,res)=>{

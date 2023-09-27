@@ -59,10 +59,53 @@ FROM
  * Create Profiles
  */
 
-export const createChildProfileAsync = async(FirstName,MiddleNames, LastName,DateOfBirth,Gender,DateOfAdmission,DateOfEntry,Country,City,GuardianInfo) =>{
+export const createChildProfileAsync = async( FullName,
+  DOB,
+  Gender,
+  DateOfAdmission,
+  Country,
+  City,
+  Nationality,
+  Language,
+  Remark,
+  MedicalDesc,
+  BirthFather,
+  BirthMother,
+  ReasonForPlacement,
+  RegisteredBy) =>{
    
-  return await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "ChildProfile" ("FirstName", "MiddleNames", "LastName","DateOfBirth","Gender","DateOfAdmission","DateOfEntry","Country","City","GuardianInfo","GuardianId") values($1,?,?,?,?,?,?,?,?,?,?)`,
-  [FirstName,MiddleNames,LastName,DateOfBirth,Gender,DateOfAdmission,DateOfEntry,Country,City,GuardianInfo]);
+  return await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "ChildProfile" (
+    "FullName",
+    "DOB",
+    "Gender",
+    "DateOfAdmission",
+    "Country",
+    "City",
+    "Nationality",
+    "Language",
+    "Remark",
+    "MedicalDesc",
+    "BirthFather",
+    "BirthMother",
+    "ReasonForPlacement",
+    "RegisteredBy"
+) VALUES ($1, $2,$3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14);`,
+[
+  FullName,
+  DOB,
+  Gender,
+  DateOfAdmission,
+  Country,
+  City,
+  Nationality,
+  Language,
+  Remark,
+  MedicalDesc,
+  BirthFather,
+  BirthMother,
+  ReasonForPlacement,
+  RegisteredBy
+]);
 }
 
 export const createStaffProfileAsync = async() =>{
