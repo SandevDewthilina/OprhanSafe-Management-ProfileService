@@ -137,3 +137,14 @@ INSERT INTO "ChildProfile" (
     'c9e3b830-5a62-468b-8936-c4d9b8c1268d'       
    
 );
+
+
+ALTER TABLE "ChildProfile" ADD "OrphanageId" uuid NOT NULL default 'bb190a0d-046f-455f-a03b-9908c07dc2ff';
+
+ALTER TABLE "ChildProfile"
+ADD CONSTRAINT "FK_OrphanageId.Id"
+FOREIGN KEY ("OrphanageId") REFERENCES "Orphanage"("Id");
+
+ALTER TABLE "ProfileVersion"
+ALTER COLUMN "ProfileData" SET DATA TYPE varchar(1000),
+ALTER COLUMN "ProfileData" SET NOT NULL;

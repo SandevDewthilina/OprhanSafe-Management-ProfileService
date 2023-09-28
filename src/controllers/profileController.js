@@ -6,7 +6,7 @@ import {
   editChildProfileAsync, editStaffProfileAsync,editSocialWorkerProfileAsync,editParentProfileAsync,
   viewChildProfilesAsync,viewStaffProfileAsync,viewSocialWorkerProfileAsync, viewParentProfileAsync,
   viewChildInfoExternalAsync, getChildProfileCountAsync,getStaffCountAsync,getChildProfileCountAdminAsync,
-  getStaffCountStaffAsync, getUserByEmailAsync,CreateProfileVersionAsync,getOrphanageCountAsync
+  getStaffCountStaffAsync, getUserByEmailAsync,CreateProfileVersionAsync,getOrphanageCountAsync,getChildProfileAllDetailsAsync
 } from "../services/profileService.js";
 import {
   generatePassword,
@@ -90,6 +90,7 @@ export const createChildProfile = asyncHandler(async(req,res)=>{
     BirthMother,
     ReasonForPlacement,
     RegisteredBy,
+    OrphanageId
   } = req.body;
   await createChildProfileAsync(FullName,
     DOB,
@@ -104,7 +105,8 @@ export const createChildProfile = asyncHandler(async(req,res)=>{
     BirthFather,
     BirthMother,
     ReasonForPlacement,
-    RegisteredBy,);
+    RegisteredBy,
+    OrphanageId,);
   return res.status(200).json({
     success:true,
     message: "successfully created a child profile",
@@ -172,32 +174,37 @@ export const createParentProfile = asyncHandler(async(req,res)=>{
  */
 export const deleteChildProfile = asyncHandler(async(req,res)=>{
   const {
-    Id, commitMessage, committedByUserId
+    childId, commitMessage, committedByUserId
   } = req.body;
-  const profileData = await viewChildProfiles(Id);
-  await CreateProfileVersionAsync(Id,profileData, commitMessage, committedByUserId);
-  await deleteChildProfileAsync(Id);
+  const profileData = await getChildProfileAllDetailsAsync(childId);
+  if (profileData) {
+    await CreateProfileVersionAsync(childId,JSON.stringify(profileData), commitMessage, committedByUserId);
+    await deleteChildProfileAsync(childId);
+  }else {
+    console.error('Child profile not found');
+  }
+  
   return res.status(200).json({
     success:true,
     message: "successfully deleted child profile",
   })
 });
 export const deleteStaffProfile = asyncHandler(async(req,res)=>{
-  const results = await deleteStaffProfileAsync();
+  const results = await deleteStaffProfileAsync(req.body.userIdToDelete);
   return res.status(200).json({
     success:true,
-    parentProfile:results
+    message: "successfully deleted staff profile"
   })
 });
 export const deleteSocialWorkerProfile = asyncHandler(async(req,res)=>{
-  const results = await deleteSocialWorkerProfileAsync();
+  const results = await deleteSocialWorkerProfileAsync(req.body.userIdToDelete);
   return res.status(200).json({
     success:true,
     parentProfile:results
   })
 });
 export const deleteParentProfile = asyncHandler(async(req,res)=>{
-  const results = await deleteParentProfileAsync();
+  const results = await deleteParentProfileAsync(req.body.userIdToDelete);
   return res.status(200).json({
     success:true,
     parentProfile:results
@@ -244,7 +251,7 @@ export const editParentProfile = asyncHandler(async(req,res)=>{
  * View profiles by managers
  */
 export const viewChildProfiles = asyncHandler(async(req,res)=>{
-  const results = await viewChildProfilesAsync(req.body.Id);
+  const results = await viewChildProfilesAsync(req.body.childId);
   // Remove the timestamp from DateOfBirth
   const formattedChildProfiles = results.map((profile) => {
     if (profile["DOB"]) {
@@ -322,7 +329,7 @@ export const viewParentProfile = asyncHandler(async(req,res)=>{
  */
 
 export const viewChildInfoExternal = asyncHandler(async(req,res)=>{
-  const results = await viewChildInfoExternalAsync();
+  const results = await viewChildInfoExternalAsync(req.body.childId);
   return res.status(200).json({
     success:true,
     parentProfile:results
@@ -335,10 +342,10 @@ export const viewChildInfoExternal = asyncHandler(async(req,res)=>{
  */
 
 export const getChildProfileCount = asyncHandler(async(req,res)=>{
-  const results = await getChildProfileCountAsync();
+  const results = await getChildProfileCountAsync(req.body.OrphanageId);
   return res.status(200).json({
     success:true,
-    parentProfile:results
+    childProfileCount:results
   })
 });
 
@@ -371,5 +378,13 @@ export const getOrphanageCount = asyncHandler(async(req,res)=>{
   return res.status(200).json({
     success:true,
     OrphanageCount:results
+  })
+});
+
+export const getChildProfileAllDetails = asyncHandler(async(req,res)=>{
+  const results = await getChildProfileAllDetailsAsync(req.body.childId);
+  return res.status(200).json({
+    success:true,
+    ChildProfiles:results
   })
 });
