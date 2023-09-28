@@ -172,12 +172,16 @@ export const deleteStaffProfileAsync = async(userIdToDelete) =>{
   await DatabaseHandler.executeSingleQueryAsync('DELETE FROM "User" WHERE "Id" = $1',[userIdToDelete]);
 }
 
-export const deleteSocialWorkerProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync('',[]);
+export const deleteSocialWorkerProfileAsync = async(userIdToDelete) =>{
+  await DatabaseHandler.executeSingleQueryAsync(`DELETE FROM "UserRole" WHERE "UserId" = $1`,[userIdToDelete]);
+  await DatabaseHandler.executeSingleQueryAsync(`DELETE FROM "SocialWorker" WHERE "UserId" = $1`,[userIdToDelete]);
+  await DatabaseHandler.executeSingleQueryAsync(`DELETE FROM "User" WHERE "Id" = $1`,[userIdToDelete]);
 }
 
 export const deleteParentProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync('',[]);
+  await DatabaseHandler.executeSingleQueryAsync(`DELETE FROM "UserRole" WHERE "UserId" = $1`,[userIdToDelete]);
+  await DatabaseHandler.executeSingleQueryAsync(`DELETE FROM "Parent" WHERE "UserId" = $1`,[userIdToDelete]);
+  await DatabaseHandler.executeSingleQueryAsync(`DELETE FROM "User" WHERE "Id" = $1`,[userIdToDelete]);
 }
 
 /**
@@ -375,5 +379,12 @@ export const getUserByEmailAsync = async (email) => {
     'SELECT * FROM "User" WHERE "Email" = $1 LIMIT 1',
     [email]
   );
+};
+
+//get all details of a child profile
+
+export const getChildProfileAllDetailsAsync = async (childId) => {
+  const results = await DatabaseHandler.executeSingleQueryAsync(`SELECT * FROM "ChildProfile" WHERE "Id" = $1;`, [childId]);
+  return results;
 };
 

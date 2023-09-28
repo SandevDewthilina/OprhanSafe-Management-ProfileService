@@ -144,3 +144,7 @@ ALTER TABLE "ChildProfile" ADD "OrphanageId" uuid NOT NULL default 'bb190a0d-046
 ALTER TABLE "ChildProfile"
 ADD CONSTRAINT "FK_OrphanageId.Id"
 FOREIGN KEY ("OrphanageId") REFERENCES "Orphanage"("Id");
+
+ALTER TABLE "ProfileVersion"
+ALTER COLUMN "ProfileData" SET DATA TYPE varchar(1000),
+ALTER COLUMN "ProfileData" SET NOT NULL;
