@@ -7,7 +7,9 @@ import DatabaseHandler from "../lib/database/DatabaseHandler.js";
 
 export const getChildProfilesAsync = async () => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
-    `select "FullName","DOB","Gender","DateOfAdmission" from "ChildProfile";`, []);
+    `select "ChildProfile"."FullName", "ChildProfile"."DOB", "ChildProfile"."Gender", "ChildProfile"."DateOfAdmission", "Orphanage"."Name" AS "OrphanageName" from "ChildProfile"
+    INNER JOIN
+      "Orphanage" ON "ChildProfile"."OrphanageId" = "Orphanage"."Id";`, []);
   return results; 
 };
 
@@ -72,7 +74,8 @@ export const createChildProfileAsync = async( FullName,
   BirthFather,
   BirthMother,
   ReasonForPlacement,
-  RegisteredBy) =>{
+  RegisteredBy,
+  OrphanageId) =>{
    
   return await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "ChildProfile" (
     "FullName",
@@ -88,8 +91,9 @@ export const createChildProfileAsync = async( FullName,
     "BirthFather",
     "BirthMother",
     "ReasonForPlacement",
-    "RegisteredBy"
-) VALUES ($1, $2,$3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14);`,
+    "RegisteredBy",
+    "OrphanageId"
+) VALUES ($1, $2,$3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15);`,
 [
   FullName,
   DOB,
@@ -104,7 +108,8 @@ export const createChildProfileAsync = async( FullName,
   BirthFather,
   BirthMother,
   ReasonForPlacement,
-  RegisteredBy
+  RegisteredBy,
+  OrphanageId
 ]);
 }
 
@@ -199,25 +204,28 @@ export const editParentProfileAsync = async() =>{
  * View profiles by managers
  */
 
-export const viewChildProfilesAsync = async (Id) => {
+export const viewChildProfilesAsync = async (childId) => {
   const results = await DatabaseHandler.executeSingleQueryAsync( `  SELECT
   "FullName",
   "DOB",
   "Gender",
   "DateOfAdmission",
   "Country",
-  "City",
+  "ChildProfile"."City",
   "Nationality",
   "Language",
   "Remark",
   "MedicalDesc",
   "BirthFather",
   "BirthMother",
-  "ReasonForPlacement"
+  "ReasonForPlacement",
+  "Orphanage"."Name" AS "OrphanageName"
 FROM
   "ChildProfile"
+INNER JOIN
+  "Orphanage" ON "ChildProfile"."OrphanageId" = "Orphanage"."Id"
 WHERE
-  "Id" = $1`, [Id]);
+  "ChildProfile"."Id" = $1;`, [childId]);
   return results;
 };
 
@@ -283,8 +291,25 @@ export const viewParentProfileAsync = async(Id) =>{
  * External party view child profiles
  */
 
-export const viewChildInfoExternalAsync = async () => {
-  const results = await DatabaseHandler.executeSingleQueryAsync('', []);
+export const viewChildInfoExternalAsync = async (childId) => {
+  const results = await DatabaseHandler.executeSingleQueryAsync(`SELECT
+  "FullName",
+  "DOB",
+  "Gender",
+  "Country",
+  "Nationality",
+  "Language",
+  "Remark",
+  "BirthFather",
+  "BirthMother",
+  "ReasonForPlacement",
+  "Orphanage"."Name" AS "OrphanageName"
+FROM
+  "ChildProfile"
+INNER JOIN
+  "Orphanage" ON "ChildProfile"."OrphanageId" = "Orphanage"."Id"
+WHERE
+  "ChildProfile"."Id" = $1;`, [childId]);
   return results;
 };
 
@@ -295,11 +320,12 @@ export const viewChildInfoExternalAsync = async () => {
  */
 
 // manager dashboard child profile count
-export const getChildProfileCountAsync = async() =>{
+export const getChildProfileCountAsync = async(OrphanageId) =>{
   // orphanage wise
   return await DatabaseHandler.executeSingleQueryAsync(`SELECT COUNT(*)
-  FROM "ChildProfile";
-  `,[]);
+  FROM "ChildProfile" WHERE
+ "OrphanageId" = $1;
+  `,[OrphanageId]);
 
   
 };

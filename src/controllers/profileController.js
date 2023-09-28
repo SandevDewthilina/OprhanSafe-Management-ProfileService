@@ -90,6 +90,7 @@ export const createChildProfile = asyncHandler(async(req,res)=>{
     BirthMother,
     ReasonForPlacement,
     RegisteredBy,
+    OrphanageId
   } = req.body;
   await createChildProfileAsync(FullName,
     DOB,
@@ -104,7 +105,8 @@ export const createChildProfile = asyncHandler(async(req,res)=>{
     BirthFather,
     BirthMother,
     ReasonForPlacement,
-    RegisteredBy,);
+    RegisteredBy,
+    OrphanageId,);
   return res.status(200).json({
     success:true,
     message: "successfully created a child profile",
@@ -244,7 +246,7 @@ export const editParentProfile = asyncHandler(async(req,res)=>{
  * View profiles by managers
  */
 export const viewChildProfiles = asyncHandler(async(req,res)=>{
-  const results = await viewChildProfilesAsync(req.body.Id);
+  const results = await viewChildProfilesAsync(req.body.childId);
   // Remove the timestamp from DateOfBirth
   const formattedChildProfiles = results.map((profile) => {
     if (profile["DOB"]) {
@@ -322,7 +324,7 @@ export const viewParentProfile = asyncHandler(async(req,res)=>{
  */
 
 export const viewChildInfoExternal = asyncHandler(async(req,res)=>{
-  const results = await viewChildInfoExternalAsync();
+  const results = await viewChildInfoExternalAsync(req.body.childId);
   return res.status(200).json({
     success:true,
     parentProfile:results
@@ -335,10 +337,10 @@ export const viewChildInfoExternal = asyncHandler(async(req,res)=>{
  */
 
 export const getChildProfileCount = asyncHandler(async(req,res)=>{
-  const results = await getChildProfileCountAsync();
+  const results = await getChildProfileCountAsync(req.body.OrphanageId);
   return res.status(200).json({
     success:true,
-    parentProfile:results
+    childProfileCount:results
   })
 });
 
