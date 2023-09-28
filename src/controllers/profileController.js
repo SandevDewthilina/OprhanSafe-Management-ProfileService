@@ -221,10 +221,28 @@ export const deleteParentProfile = asyncHandler(async(req,res)=>{
  * Edit profiles
  */
 export const editChildProfile = asyncHandler(async(req,res)=>{
-  const results = await editChildProfileAsync();
+  const {
+    Id,FullName,DOB,Gender,DateOfAdmission,Country,City,Nationality,Language,Remark,
+    MedicalDesc,BirthFather,BirthMother,ReasonForPlacement,OrphanageId,
+  } = req.body;
+  const results = await editChildProfileAsync(Id,FullName,
+    DOB,
+    Gender,
+    DateOfAdmission,
+    Country,
+    City,
+    Nationality,
+    Language,
+    Remark,
+    MedicalDesc,
+    BirthFather,
+    BirthMother,
+    ReasonForPlacement,
+    OrphanageId,);
   return res.status(200).json({
     success:true,
-    parentProfile:results
+    message: "successfully edited child profile",
+    childProfile:results
   })
 });
 

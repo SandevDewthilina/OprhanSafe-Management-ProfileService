@@ -193,8 +193,27 @@ export const deleteParentProfileAsync = async() =>{
  * Edit Profiles
  */
 
-export const editChildProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync('',[]);
+export const editChildProfileAsync = async(Id,FullName,DOB,Gender,DateOfAdmission,Country,City,Nationality,Language,Remark,
+  MedicalDesc,BirthFather,BirthMother,ReasonForPlacement,OrphanageId,) =>{
+  await DatabaseHandler.executeSingleQueryAsync(`UPDATE "ChildProfile"
+  SET
+    "FullName"=$1,
+    "DOB" = $2,
+    "Gender" = $3,
+    "DateOfAdmission" = $4,
+    "Country" = $5,
+    "City" = $6,
+    "Nationality" = $7,
+    "Language" = $8,
+    "Remark" = $9,
+    "MedicalDesc" = $10,
+    "BirthFather" = $11,
+    "BirthMother" = $12,
+    "ReasonForPlacement" = $13,
+    "OrphanageId" = $14
+  WHERE
+    "Id" = $15`,[FullName,DOB,Gender,DateOfAdmission,Country,City,Nationality,Language,Remark,
+      MedicalDesc,BirthFather,BirthMother,ReasonForPlacement,OrphanageId,Id]);
 }
 
 export const editStaffProfileAsync = async() =>{
