@@ -1,4 +1,5 @@
 import express from "express";
+
 import {
   getChildProfileList,
   getStaffProfileList,
@@ -29,6 +30,7 @@ import {
   getChildProfileAllDetails,
   getChildProfileNameListByOrphanageId,
   getSocialWorkerNameListByOrphanageId,
+
 } from "../controllers/profileController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -56,7 +58,7 @@ router
 router.route("/deleteParentProfile").delete(protect, deleteParentProfile);
 
 router.route("/editChildProfile").put(protect, editChildProfile);
-router.route("/editStaffProfile").put(protect, editStaffProfile);
+//router.route("/editStaffProfile").put(protect, editStaffProfile);   //auth-service update user
 router.route("/editSocialWorkerProfile").put(protect, editSocialWorkerProfile);
 router.route("/editParentProfile").put(protect, editParentProfile);
 
@@ -84,4 +86,7 @@ router
 router
   .route("/getSocialWorkerNameListByOrphanageId")
   .get(protect, getSocialWorkerNameListByOrphanageId);
+
+router.route("/getChildProfileAllDetails").get(protect, getChildProfileAllDetails);
+router.route("/getProfileVersion").get(protect, getProfileVersion);
 export default router;
