@@ -6,8 +6,11 @@ import {
   editChildProfileAsync, editStaffProfileAsync,editSocialWorkerProfileAsync,editParentProfileAsync,
   viewChildProfilesAsync,viewStaffProfileAsync,viewSocialWorkerProfileAsync, viewParentProfileAsync,
   viewChildInfoExternalAsync, getChildProfileCountAsync,getStaffCountAsync,getChildProfileCountAdminAsync,
-  getStaffCountStaffAsync, getUserByUsernameAsync
+  getStaffCountStaffAsync, getUserByEmailAsync,CreateProfileVersionAsync
 } from "../services/profileService.js";
+import {
+  generatePassword,
+} from "../utils/index.js";
 import { notFound } from "../middleware/errorMiddleware.js";
 
 
@@ -109,21 +112,40 @@ export const createChildProfile = asyncHandler(async(req,res)=>{
 });
 
 export const createStaffProfile = asyncHandler(async(req,res)=>{
-  const { email, username, name, phoneNumber, password } = req.body;
-  const results = await getUserByUsernameAsync(username);
+  const {
+    email,
+    username,
+    name,
+    phoneNumber,
+    password,
+    orphanageId,
+    address,
+    nic,
+    gender,
+    dob,
+  } = req.body;
+  const results = await getUserByEmailAsync(email);
+
   if (results.length > 0) {
     res.status(400);
-    throw new Error("User Name Already Exists");
+    throw new Error("Email Already Exists");
   } else {
+    const hashedPassword = await generatePassword(password);
     const results = await createStaffProfileAsync({
       email,
       username,
       name,
       phoneNumber,
+      hashedPassword,
+      orphanageId,
+      address,
+      nic,
+      gender,
+      dob,
     });
     return res.status(201).json({
       success: true,
-      userCreated: results,
+      userCreated: results[0],
     });
   }
 
@@ -149,10 +171,15 @@ export const createParentProfile = asyncHandler(async(req,res)=>{
  * Delete Profiles
  */
 export const deleteChildProfile = asyncHandler(async(req,res)=>{
-  const results = await deleteChildProfileAsync();
+  const {
+    Id, commitMessage, committedByUserId
+  } = req.body;
+  const profileData = await viewChildProfiles(Id);
+  await CreateProfileVersionAsync(Id,profileData, commitMessage, committedByUserId);
+  await deleteChildProfileAsync(Id);
   return res.status(200).json({
     success:true,
-    parentProfile:results
+    message: "successfully deleted child profile",
   })
 });
 export const deleteStaffProfile = asyncHandler(async(req,res)=>{
@@ -217,31 +244,75 @@ export const editParentProfile = asyncHandler(async(req,res)=>{
  * View profiles by managers
  */
 export const viewChildProfiles = asyncHandler(async(req,res)=>{
-  const results = await viewChildProfilesAsync();
+  const results = await viewChildProfilesAsync(req.body.Id);
+  // Remove the timestamp from DateOfBirth
+  const formattedChildProfiles = results.map((profile) => {
+    if (profile["DOB"]) {
+      const DOBTimestamp = new Date(profile["DOB"]);
+      const datePart = DOBTimestamp.toISOString().split("T")[0];
+      profile["DOB"] = datePart;
+    }
+    if (profile["DateOfAdmission"]) {
+      const DateOfAdmissionTimestamp = new Date(profile["DateOfAdmission"]);
+      const datePart = DateOfAdmissionTimestamp.toISOString().split("T")[0];
+      profile["DateOfAdmission"] = datePart;
+    }
+    return profile;
+  });
+
   return res.status(200).json({
     success:true,
-    parentProfile:results
+    childProfile:formattedChildProfiles
   })
 });
 export const viewStaffProfile = asyncHandler(async(req,res)=>{
-  const results = await viewStaffProfileAsync();
+  const results = await viewStaffProfileAsync(req.body.Id);
+  const formattedStaffProfiles = results.map((profile) => {
+    if (profile["DOB"]) {
+      const DOBTimestamp = new Date(profile["DOB"]);
+      const datePart = DOBTimestamp.toISOString().split("T")[0];
+      profile["DOB"] = datePart;
+    }
+    return profile;
+  });
   return res.status(200).json({
     success:true,
-    parentProfile:results
+    parentProfile:formattedStaffProfiles
   })
 });
 export const viewSocialWorkerProfile = asyncHandler(async(req,res)=>{
-  const results = await viewSocialWorkerProfileAsync();
+  const results = await viewSocialWorkerProfileAsync(req.body.Id);
+  const formattedSocialWorkerProfiles = results.map((profile) => {
+    if (profile["DOB"]) {
+      const DOBTimestamp = new Date(profile["DOB"]);
+      const datePart = DOBTimestamp.toISOString().split("T")[0];
+      profile["DOB"] = datePart;
+    }
+    return profile;
+  });
   return res.status(200).json({
     success:true,
-    parentProfile:results
+    parentProfile:formattedSocialWorkerProfiles
   })
 });
 export const viewParentProfile = asyncHandler(async(req,res)=>{
   const results = await viewParentProfileAsync();
+  const formattedParentProfiles = results.map((profile) => {
+    if (profile["DOBOfFather"]) {
+      const DOBOfFatherTimestamp = new Date(profile["DOBOfFather"]);
+      const datePart = DOBOfFatherTimestamp.toISOString().split("T")[0];
+      profile["DOBOfFather"] = datePart;
+    }
+    if (profile["DOBOfMother"]) {
+      const DOBOfMotherTimestamp = new Date(profile["DOBOfMother"]);
+      const datePart = DOBOfMotherTimestamp.toISOString().split("T")[0];
+      profile["DOBOfMother"] = datePart;
+    }
+    return profile;
+  });
   return res.status(200).json({
     success:true,
-    parentProfile:results
+    parentProfile:formattedParentProfiles
   })
 });
 
