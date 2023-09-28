@@ -29,7 +29,7 @@ router.route("/deleteParentProfile").delete(protect, deleteParentProfile);
 
 
 router.route("/editChildProfile").put(protect, editChildProfile);
-router.route("/editStaffProfile").put(protect, editStaffProfile);
+//router.route("/editStaffProfile").put(protect, editStaffProfile);   //auth-service update user
 router.route("/editSocialWorkerProfile").put(protect, editSocialWorkerProfile);
 router.route("/editParentProfile").put(protect, editParentProfile);
 

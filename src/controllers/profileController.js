@@ -12,7 +12,9 @@ import {
 import {
   generatePassword,
 } from "../utils/index.js";
-import { notFound } from "../middleware/errorMiddleware.js";
+
+import{RPCRequest} from"../lib/rabbitmq/index.js";
+import { AUTH_SERVICE_RPC } from "../config/index.js";
 
 
 // @desc notification broadcast
@@ -115,46 +117,11 @@ export const createChildProfile = asyncHandler(async(req,res)=>{
 });
 
 export const createStaffProfile = asyncHandler(async(req,res)=>{
-  const {
-    email,
-    username,
-    name,
-    phoneNumber,
-    password,
-    orphanageId,
-    address,
-    nic,
-    gender,
-    dob,
-    RoleId,
-  } = req.body;
-  const UserId = await getUserByEmailAsync(email);
-
-  if (UserId.length > 0) {
-    res.status(400);
-    throw new Error("Email Already Exists");
-  } else {
-    const hashedPassword = await generatePassword(password);
-    const results = await createStaffProfileAsync({
-      email,
-      username,
-      name,
-      phoneNumber,
-      hashedPassword,
-      orphanageId,
-      address,
-      nic,
-      gender,
-      dob,
-    });
-    await createUserRolesAsync(UserId,RoleId);
-    return res.status(201).json({
-      success: true,
-      message: "successfully created a staff profile",
-      userCreated: results[0],
-    });
-  }
-
+  
+  const response= await RPCRequest(AUTH_SERVICE_RPC,{event:"REGISTER_USER",data:req.body})
+  return res.status(200).json({
+    success:true
+  })
 });
 
 export const createSocialWorkerProfile = asyncHandler(async(req,res)=>{

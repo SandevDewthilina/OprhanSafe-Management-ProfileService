@@ -217,7 +217,7 @@ export const editChildProfileAsync = async(Id,FullName,DOB,Gender,DateOfAdmissio
 }
 
 export const editStaffProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync('',[]);
+  await DatabaseHandler.executeSingleQueryAsync(``,[]);
 }
 
 export const editSocialWorkerProfileAsync = async() =>{
