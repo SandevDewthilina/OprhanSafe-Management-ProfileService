@@ -6,7 +6,7 @@ import {
   editChildProfileAsync, editStaffProfileAsync,editSocialWorkerProfileAsync,editParentProfileAsync,
   viewChildProfilesAsync,viewStaffProfileAsync,viewSocialWorkerProfileAsync, viewParentProfileAsync,
   viewChildInfoExternalAsync, getChildProfileCountAsync,getStaffCountAsync,getChildProfileCountAdminAsync,
-  getStaffCountStaffAsync, getUserByEmailAsync,CreateProfileVersionAsync
+  getStaffCountStaffAsync, getUserByEmailAsync,CreateProfileVersionAsync,getOrphanageCountAsync
 } from "../services/profileService.js";
 import {
   generatePassword,
@@ -277,7 +277,7 @@ export const viewStaffProfile = asyncHandler(async(req,res)=>{
   });
   return res.status(200).json({
     success:true,
-    parentProfile:formattedStaffProfiles
+    staffProfile:formattedStaffProfiles
   })
 });
 export const viewSocialWorkerProfile = asyncHandler(async(req,res)=>{
@@ -292,7 +292,7 @@ export const viewSocialWorkerProfile = asyncHandler(async(req,res)=>{
   });
   return res.status(200).json({
     success:true,
-    parentProfile:formattedSocialWorkerProfiles
+    socialWorkerProfile:formattedSocialWorkerProfiles
   })
 });
 export const viewParentProfile = asyncHandler(async(req,res)=>{
@@ -343,10 +343,10 @@ export const getChildProfileCount = asyncHandler(async(req,res)=>{
 });
 
 export const getStaffCount = asyncHandler(async(req,res)=>{
-  const results = await getStaffCountAsync();
+  const results = await getStaffCountAsync(req.body.OrphanageId);
   return res.status(200).json({
     success:true,
-    parentProfile:results
+    StaffCount:results
   })
 });
 
@@ -354,7 +354,7 @@ export const getChildProfileCountAdmin = asyncHandler(async(req,res)=>{
   const results = await getChildProfileCountAdminAsync();
   return res.status(200).json({
     success:true,
-    parentProfile:results
+    ChildProfileCount:results
   })
 });
 
@@ -362,6 +362,14 @@ export const getStaffCountStaff = asyncHandler(async(req,res)=>{
   const results = await getStaffCountStaffAsync();
   return res.status(200).json({
     success:true,
-    parentProfile:results
+    StaffCount:results
+  })
+});
+
+export const getOrphanageCount = asyncHandler(async(req,res)=>{
+  const results = await getOrphanageCountAsync();
+  return res.status(200).json({
+    success:true,
+    OrphanageCount:results
   })
 });

@@ -297,15 +297,24 @@ export const viewChildInfoExternalAsync = async () => {
 // manager dashboard child profile count
 export const getChildProfileCountAsync = async() =>{
   // orphanage wise
-  return await DatabaseHandler.executeSingleQueryAsync('',[]);
+  return await DatabaseHandler.executeSingleQueryAsync(`SELECT COUNT(*)
+  FROM "ChildProfile";
+  `,[]);
 
   
 };
 
 // manager dashboard staff profile count
-export const getStaffCountAsync = async() =>{
+export const getStaffCountAsync = async(OrphanageId) =>{
   // orphanage wise
-  return await DatabaseHandler.executeSingleQueryAsync('',[]);
+  return await DatabaseHandler.executeSingleQueryAsync(`SELECT COUNT(*)
+  FROM "User" 
+  INNER JOIN
+  "UserRole" ON "User"."Id" = "UserRole"."UserId"
+  INNER JOIN
+  "Role" ON "UserRole"."RoleId" = "Role"."Id"
+  WHERE
+   "Role"."Name" IN ('admin', 'systemManager','orphanageStaff') and "User"."OrphanageId"= $1;`,[OrphanageId]);
 };
 
 
@@ -318,7 +327,20 @@ export const getChildProfileCountAdminAsync = async() =>{
 
 // admin dashboard staff profile count
 export const getStaffCountStaffAsync = async() =>{
-  return await DatabaseHandler.executeSingleQueryAsync('',[]);
+  return await DatabaseHandler.executeSingleQueryAsync(`SELECT COUNT(*)
+  FROM "User" 
+  INNER JOIN
+  "UserRole" ON "User"."Id" = "UserRole"."UserId"
+  INNER JOIN
+  "Role" ON "UserRole"."RoleId" = "Role"."Id"
+  WHERE
+   "Role"."Name" IN ('admin', 'systemManager','orphanageStaff');`,[]);
+};
+
+//total number of Orphanages
+export const getOrphanageCountAsync = async() =>{
+  return await DatabaseHandler.executeSingleQueryAsync(` SELECT COUNT(*)
+  FROM "Orphanage";`,[]);
 };
 
 export const getUserByEmailAsync = async (email) => {

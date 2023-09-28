@@ -6,7 +6,7 @@ import {
     editChildProfile,editStaffProfile,editSocialWorkerProfile,editParentProfile,
     viewChildProfiles,viewStaffProfile, viewSocialWorkerProfile,viewParentProfile,
     viewChildInfoExternal,getChildProfileCount,getStaffCount,getChildProfileCountAdmin,
-    getStaffCountStaff
+    getStaffCountStaff,getOrphanageCount
 } from "../controllers/profileController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -43,6 +43,7 @@ router.route("/viewChildInfoExternal").get(protect, viewChildInfoExternal);
 router.route("/getChildProfileCount").get(protect, getChildProfileCount);
 router.route("/getStaffCount").get(protect, getStaffCount);
 router.route("/getChildProfileCountAdmin").get(protect, getChildProfileCountAdmin);
-router.route("/getStaffCountStaff").get(protect, getStaffCountStaff);
+router.route("/getStaffCountAdmin").get(protect, getStaffCountStaff);
+router.route("/getOrphanageCount").get(protect, getOrphanageCount);
 export default router;
 
