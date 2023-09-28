@@ -185,10 +185,10 @@ export const deleteChildProfile = asyncHandler(async(req,res)=>{
   })
 });
 export const deleteStaffProfile = asyncHandler(async(req,res)=>{
-  const results = await deleteStaffProfileAsync();
+  const results = await deleteStaffProfileAsync(req.body.userIdToDelete);
   return res.status(200).json({
     success:true,
-    parentProfile:results
+    message: "successfully deleted staff profile"
   })
 });
 export const deleteSocialWorkerProfile = asyncHandler(async(req,res)=>{

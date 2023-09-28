@@ -167,8 +167,9 @@ export const deleteChildProfileAsync = async(Id) =>{
   await DatabaseHandler.executeSingleQueryAsync('DELETE FROM "ChildProfile" WHERE "Id"= $1 RETURNING *',[Id]);
 }
 
-export const deleteStaffProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync('',[]);
+export const deleteStaffProfileAsync = async(userIdToDelete) =>{
+  await DatabaseHandler.executeSingleQueryAsync(`DELETE FROM "UserRole" WHERE "UserId" = $1`,[userIdToDelete]);
+  await DatabaseHandler.executeSingleQueryAsync('DELETE FROM "User" WHERE "Id" = $1',[userIdToDelete]);
 }
 
 export const deleteSocialWorkerProfileAsync = async() =>{
