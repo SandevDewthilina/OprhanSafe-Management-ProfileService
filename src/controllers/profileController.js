@@ -6,7 +6,8 @@ import {
   editChildProfileAsync, editStaffProfileAsync,editSocialWorkerProfileAsync,editParentProfileAsync,
   viewChildProfilesAsync,viewStaffProfileAsync,viewSocialWorkerProfileAsync, viewParentProfileAsync,
   viewChildInfoExternalAsync, getChildProfileCountAsync,getStaffCountAsync,getChildProfileCountAdminAsync,
-  getStaffCountStaffAsync, getUserByEmailAsync,CreateProfileVersionAsync,getOrphanageCountAsync,getChildProfileAllDetailsAsync
+  getStaffCountStaffAsync, getUserByEmailAsync,CreateProfileVersionAsync,getOrphanageCountAsync,getChildProfileAllDetailsAsync,
+  getProfileVersionAsync,createUserRolesAsync
 } from "../services/profileService.js";
 import {
   generatePassword,
@@ -125,10 +126,11 @@ export const createStaffProfile = asyncHandler(async(req,res)=>{
     nic,
     gender,
     dob,
+    RoleId,
   } = req.body;
-  const results = await getUserByEmailAsync(email);
+  const UserId = await getUserByEmailAsync(email);
 
-  if (results.length > 0) {
+  if (UserId.length > 0) {
     res.status(400);
     throw new Error("Email Already Exists");
   } else {
@@ -145,8 +147,10 @@ export const createStaffProfile = asyncHandler(async(req,res)=>{
       gender,
       dob,
     });
+    await createUserRolesAsync(UserId,RoleId);
     return res.status(201).json({
       success: true,
+      message: "successfully created a staff profile",
       userCreated: results[0],
     });
   }
@@ -187,6 +191,7 @@ export const deleteChildProfile = asyncHandler(async(req,res)=>{
   return res.status(200).json({
     success:true,
     message: "successfully deleted child profile",
+    profileData:JSON.stringify(profileData)
   })
 });
 export const deleteStaffProfile = asyncHandler(async(req,res)=>{
@@ -386,5 +391,13 @@ export const getChildProfileAllDetails = asyncHandler(async(req,res)=>{
   return res.status(200).json({
     success:true,
     ChildProfiles:results
+  })
+});
+
+export const getProfileVersion = asyncHandler(async(req,res)=>{
+  const results = await getProfileVersionAsync();
+  return res.status(200).json({
+    success:true,
+    ProfileVersion:results
   })
 });
