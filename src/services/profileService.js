@@ -125,7 +125,7 @@ export const createStaffProfileAsync = async ({
   gender,
   dob,
 }) => {
-  return await DatabaseHandler.executeSingleQueryAsync(
+   await DatabaseHandler.executeSingleQueryAsync(
     `INSERT INTO "User" 
     ("Username", "Name", "Email","PhoneNumber","PasswordHash", "OrphanageId", "Address", "NIC", "Gender", "DOB" ) 
     values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
@@ -142,7 +142,12 @@ export const createStaffProfileAsync = async ({
       dob,
     ]
   );
+  
 };
+
+export const createUserRolesAsync = async(UserId,RoleId) =>{
+  await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "UserRole" ("UserId", "RoleId") VALUES ($1, $2)`,[UserId,RoleId]);
+}
 
 export const createSocialWorkerProfileAsync = async() =>{
   await DatabaseHandler.executeSingleQueryAsync('',[]);
@@ -188,12 +193,31 @@ export const deleteParentProfileAsync = async() =>{
  * Edit Profiles
  */
 
-export const editChildProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync('',[]);
+export const editChildProfileAsync = async(Id,FullName,DOB,Gender,DateOfAdmission,Country,City,Nationality,Language,Remark,
+  MedicalDesc,BirthFather,BirthMother,ReasonForPlacement,OrphanageId,) =>{
+  await DatabaseHandler.executeSingleQueryAsync(`UPDATE "ChildProfile"
+  SET
+    "FullName"=$1,
+    "DOB" = $2,
+    "Gender" = $3,
+    "DateOfAdmission" = $4,
+    "Country" = $5,
+    "City" = $6,
+    "Nationality" = $7,
+    "Language" = $8,
+    "Remark" = $9,
+    "MedicalDesc" = $10,
+    "BirthFather" = $11,
+    "BirthMother" = $12,
+    "ReasonForPlacement" = $13,
+    "OrphanageId" = $14
+  WHERE
+    "Id" = $15`,[FullName,DOB,Gender,DateOfAdmission,Country,City,Nationality,Language,Remark,
+      MedicalDesc,BirthFather,BirthMother,ReasonForPlacement,OrphanageId,Id]);
 }
 
 export const editStaffProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync('',[]);
+  await DatabaseHandler.executeSingleQueryAsync(``,[]);
 }
 
 export const editSocialWorkerProfileAsync = async() =>{
@@ -376,7 +400,7 @@ export const getOrphanageCountAsync = async() =>{
 
 export const getUserByEmailAsync = async (email) => {
   return await DatabaseHandler.executeSingleQueryAsync(
-    'SELECT * FROM "User" WHERE "Email" = $1 LIMIT 1',
+    'SELECT "Id" FROM "User" WHERE "Email" = $1 LIMIT 1',
     [email]
   );
 };
@@ -385,6 +409,11 @@ export const getUserByEmailAsync = async (email) => {
 
 export const getChildProfileAllDetailsAsync = async (childId) => {
   const results = await DatabaseHandler.executeSingleQueryAsync(`SELECT * FROM "ChildProfile" WHERE "Id" = $1;`, [childId]);
+  return results;
+};
+
+export const getProfileVersionAsync = async () => {
+  const results = await DatabaseHandler.executeSingleQueryAsync(`select * from "ProfileVersion";`, []);
   return results;
 };
 

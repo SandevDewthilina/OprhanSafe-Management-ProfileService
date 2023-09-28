@@ -6,12 +6,15 @@ import {
   editChildProfileAsync, editStaffProfileAsync,editSocialWorkerProfileAsync,editParentProfileAsync,
   viewChildProfilesAsync,viewStaffProfileAsync,viewSocialWorkerProfileAsync, viewParentProfileAsync,
   viewChildInfoExternalAsync, getChildProfileCountAsync,getStaffCountAsync,getChildProfileCountAdminAsync,
-  getStaffCountStaffAsync, getUserByEmailAsync,CreateProfileVersionAsync,getOrphanageCountAsync,getChildProfileAllDetailsAsync
+  getStaffCountStaffAsync, getUserByEmailAsync,CreateProfileVersionAsync,getOrphanageCountAsync,getChildProfileAllDetailsAsync,
+  getProfileVersionAsync,createUserRolesAsync
 } from "../services/profileService.js";
 import {
   generatePassword,
 } from "../utils/index.js";
-import { notFound } from "../middleware/errorMiddleware.js";
+
+import{RPCRequest} from"../lib/rabbitmq/index.js";
+import { AUTH_SERVICE_RPC } from "../config/index.js";
 
 
 // @desc notification broadcast
@@ -114,43 +117,11 @@ export const createChildProfile = asyncHandler(async(req,res)=>{
 });
 
 export const createStaffProfile = asyncHandler(async(req,res)=>{
-  const {
-    email,
-    username,
-    name,
-    phoneNumber,
-    password,
-    orphanageId,
-    address,
-    nic,
-    gender,
-    dob,
-  } = req.body;
-  const results = await getUserByEmailAsync(email);
-
-  if (results.length > 0) {
-    res.status(400);
-    throw new Error("Email Already Exists");
-  } else {
-    const hashedPassword = await generatePassword(password);
-    const results = await createStaffProfileAsync({
-      email,
-      username,
-      name,
-      phoneNumber,
-      hashedPassword,
-      orphanageId,
-      address,
-      nic,
-      gender,
-      dob,
-    });
-    return res.status(201).json({
-      success: true,
-      userCreated: results[0],
-    });
-  }
-
+  
+  const response= await RPCRequest(AUTH_SERVICE_RPC,{event:"REGISTER_USER",data:req.body})
+  return res.status(200).json({
+    success:true
+  })
 });
 
 export const createSocialWorkerProfile = asyncHandler(async(req,res)=>{
@@ -187,6 +158,7 @@ export const deleteChildProfile = asyncHandler(async(req,res)=>{
   return res.status(200).json({
     success:true,
     message: "successfully deleted child profile",
+    profileData:JSON.stringify(profileData)
   })
 });
 export const deleteStaffProfile = asyncHandler(async(req,res)=>{
@@ -216,10 +188,28 @@ export const deleteParentProfile = asyncHandler(async(req,res)=>{
  * Edit profiles
  */
 export const editChildProfile = asyncHandler(async(req,res)=>{
-  const results = await editChildProfileAsync();
+  const {
+    Id,FullName,DOB,Gender,DateOfAdmission,Country,City,Nationality,Language,Remark,
+    MedicalDesc,BirthFather,BirthMother,ReasonForPlacement,OrphanageId,
+  } = req.body;
+  const results = await editChildProfileAsync(Id,FullName,
+    DOB,
+    Gender,
+    DateOfAdmission,
+    Country,
+    City,
+    Nationality,
+    Language,
+    Remark,
+    MedicalDesc,
+    BirthFather,
+    BirthMother,
+    ReasonForPlacement,
+    OrphanageId,);
   return res.status(200).json({
     success:true,
-    parentProfile:results
+    message: "successfully edited child profile",
+    childProfile:results
   })
 });
 
@@ -386,5 +376,13 @@ export const getChildProfileAllDetails = asyncHandler(async(req,res)=>{
   return res.status(200).json({
     success:true,
     ChildProfiles:results
+  })
+});
+
+export const getProfileVersion = asyncHandler(async(req,res)=>{
+  const results = await getProfileVersionAsync();
+  return res.status(200).json({
+    success:true,
+    ProfileVersion:results
   })
 });
