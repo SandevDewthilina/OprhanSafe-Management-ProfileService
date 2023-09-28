@@ -30,7 +30,7 @@ import {
   getChildProfileAllDetails,
   getChildProfileNameListByOrphanageId,
   getSocialWorkerNameListByOrphanageId,
-
+  getProfileVersion,
 } from "../controllers/profileController.js";
 import { protect } from "../middleware/authMiddleware.js";
 

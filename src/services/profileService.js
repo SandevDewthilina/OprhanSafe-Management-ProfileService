@@ -159,15 +159,11 @@ export const createStaffProfileAsync = async ({
 
 
 export const createSocialWorkerProfileAsync = async () => {
-  await DatabaseHandler.executeSingleQueryAsync("", []);
+  await DatabaseHandler.executeSingleQueryAsync(``, []);
 };
 
 export const createUserRolesAsync = async(UserId,RoleId) =>{
   await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "UserRole" ("UserId", "RoleId") VALUES ($1, $2)`,[UserId,RoleId]);
-}
-
-export const createSocialWorkerProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync('',[]);
 }
 
 export const createParentProfileAsync = async () => {
@@ -246,10 +242,6 @@ export const deleteParentProfileAsync = async () => {
  */
 
 
-export const editChildProfileAsync = async () => {
-  await DatabaseHandler.executeSingleQueryAsync("", []);
-};
-
 export const editChildProfileAsync = async(Id,FullName,DOB,Gender,DateOfAdmission,Country,City,Nationality,Language,Remark,
   MedicalDesc,BirthFather,BirthMother,ReasonForPlacement,OrphanageId,) =>{
   await DatabaseHandler.executeSingleQueryAsync(`UPDATE "ChildProfile"
@@ -272,11 +264,6 @@ export const editChildProfileAsync = async(Id,FullName,DOB,Gender,DateOfAdmissio
     "Id" = $15`,[FullName,DOB,Gender,DateOfAdmission,Country,City,Nationality,Language,Remark,
       MedicalDesc,BirthFather,BirthMother,ReasonForPlacement,OrphanageId,Id]);
 }
-
-export const editStaffProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync(``,[]);
-}
-
 
 export const editStaffProfileAsync = async () => {
   await DatabaseHandler.executeSingleQueryAsync("", []);
