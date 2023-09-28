@@ -2,19 +2,22 @@ import DatabaseHandler from "../lib/database/DatabaseHandler.js";
 
 /**
  * get profile lists
- * 
+ *
  */
 
 export const getChildProfilesAsync = async () => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
     `select "ChildProfile"."FullName", "ChildProfile"."DOB", "ChildProfile"."Gender", "ChildProfile"."DateOfAdmission", "Orphanage"."Name" AS "OrphanageName" from "ChildProfile"
     INNER JOIN
-      "Orphanage" ON "ChildProfile"."OrphanageId" = "Orphanage"."Id";`, []);
-  return results; 
+      "Orphanage" ON "ChildProfile"."OrphanageId" = "Orphanage"."Id";`,
+    []
+  );
+  return results;
 };
 
-export const getStaffProfileListAsync = async() =>{
-  const results= await DatabaseHandler.executeSingleQueryAsync(`select  "User"."Name" AS "UserName",
+export const getStaffProfileListAsync = async () => {
+  const results = await DatabaseHandler.executeSingleQueryAsync(
+    `select  "User"."Name" AS "UserName",
   "User"."Email",
   "User"."PhoneNumber",
   "User"."Gender",
@@ -26,12 +29,15 @@ INNER JOIN
 INNER JOIN
 "Role" ON "UserRole"."RoleId" = "Role"."Id"
 WHERE
- "Role"."Name" IN ('admin', 'systemManager','orphanageStaff');`,[]);
+ "Role"."Name" IN ('admin', 'systemManager','orphanageStaff');`,
+    []
+  );
   return results;
-}
+};
 
-export const getSocialWorkerProfileListAsync = async() =>{
-  const results= await DatabaseHandler.executeSingleQueryAsync(`select  "User"."Name",
+export const getSocialWorkerProfileListAsync = async () => {
+  const results = await DatabaseHandler.executeSingleQueryAsync(
+    `select  "User"."Name",
   "User"."Email",
   "User"."PhoneNumber",
   "User"."Gender",
@@ -39,29 +45,33 @@ export const getSocialWorkerProfileListAsync = async() =>{
 FROM
 "User"
 INNER JOIN
-"SocialWorker" ON "User"."Id" = "SocialWorker"."UserId";`,[]);
+"SocialWorker" ON "User"."Id" = "SocialWorker"."UserId";`,
+    []
+  );
   return results;
-}
+};
 
-export const getParentProfileListAsync = async() =>{
-  const results= await DatabaseHandler.executeSingleQueryAsync(`select  "NameOfFather",
+export const getParentProfileListAsync = async () => {
+  const results = await DatabaseHandler.executeSingleQueryAsync(
+    `select  "NameOfFather",
   "NameOfMother",
  "Email",
  "MobileOfFather",
 "MobileOfMother",
 "Address"
 FROM
-"Parent";`,[]);
+"Parent";`,
+    []
+  );
   return results;
-}
-
-
+};
 
 /**
  * Create Profiles
  */
 
-export const createChildProfileAsync = async( FullName,
+export const createChildProfileAsync = async (
+  FullName,
   DOB,
   Gender,
   DateOfAdmission,
@@ -75,9 +85,10 @@ export const createChildProfileAsync = async( FullName,
   BirthMother,
   ReasonForPlacement,
   RegisteredBy,
-  OrphanageId) =>{
-   
-  return await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "ChildProfile" (
+  OrphanageId
+) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `INSERT INTO "ChildProfile" (
     "FullName",
     "DOB",
     "Gender",
@@ -94,24 +105,25 @@ export const createChildProfileAsync = async( FullName,
     "RegisteredBy",
     "OrphanageId"
 ) VALUES ($1, $2,$3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15);`,
-[
-  FullName,
-  DOB,
-  Gender,
-  DateOfAdmission,
-  Country,
-  City,
-  Nationality,
-  Language,
-  Remark,
-  MedicalDesc,
-  BirthFather,
-  BirthMother,
-  ReasonForPlacement,
-  RegisteredBy,
-  OrphanageId
-]);
-}
+    [
+      FullName,
+      DOB,
+      Gender,
+      DateOfAdmission,
+      Country,
+      City,
+      Nationality,
+      Language,
+      Remark,
+      MedicalDesc,
+      BirthFather,
+      BirthMother,
+      ReasonForPlacement,
+      RegisteredBy,
+      OrphanageId,
+    ]
+  );
+};
 
 export const createStaffProfileAsync = async ({
   email,
@@ -121,7 +133,7 @@ export const createStaffProfileAsync = async ({
   hashedPassword,
   orphanageId,
   address,
-  nic, 
+  nic,
   gender,
   dob,
 }) => {
@@ -144,73 +156,108 @@ export const createStaffProfileAsync = async ({
   );
 };
 
-export const createSocialWorkerProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync('',[]);
-}
+export const createSocialWorkerProfileAsync = async () => {
+  await DatabaseHandler.executeSingleQueryAsync("", []);
+};
 
-export const createParentProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync(``,[]);
-}
+export const createParentProfileAsync = async () => {
+  await DatabaseHandler.executeSingleQueryAsync(``, []);
+};
 
 /**
  * Delete Profiles
  */
 
-export const CreateProfileVersionAsync = async(childProfileId, profileData, commitMessage, committedByUserId) =>{
-  await DatabaseHandler.executeSingleQueryAsync(`
+export const CreateProfileVersionAsync = async (
+  childProfileId,
+  profileData,
+  commitMessage,
+  committedByUserId
+) => {
+  await DatabaseHandler.executeSingleQueryAsync(
+    `
   INSERT INTO "ProfileVersion" ("ChildProfileId", "ProfileData", "CommitMessage", "CommittedBy")
   VALUES ($1, $2, $3, $4)
-`, [childProfileId, profileData, commitMessage, committedByUserId]);
-}
+`,
+    [childProfileId, profileData, commitMessage, committedByUserId]
+  );
+};
 
-export const deleteChildProfileAsync = async(Id) =>{
-  await DatabaseHandler.executeSingleQueryAsync('DELETE FROM "ChildProfile" WHERE "Id"= $1 RETURNING *',[Id]);
-}
+export const deleteChildProfileAsync = async (Id) => {
+  await DatabaseHandler.executeSingleQueryAsync(
+    'DELETE FROM "ChildProfile" WHERE "Id"= $1 RETURNING *',
+    [Id]
+  );
+};
 
-export const deleteStaffProfileAsync = async(userIdToDelete) =>{
-  await DatabaseHandler.executeSingleQueryAsync(`DELETE FROM "UserRole" WHERE "UserId" = $1`,[userIdToDelete]);
-  await DatabaseHandler.executeSingleQueryAsync('DELETE FROM "User" WHERE "Id" = $1',[userIdToDelete]);
-}
+export const deleteStaffProfileAsync = async (userIdToDelete) => {
+  await DatabaseHandler.executeSingleQueryAsync(
+    `DELETE FROM "UserRole" WHERE "UserId" = $1`,
+    [userIdToDelete]
+  );
+  await DatabaseHandler.executeSingleQueryAsync(
+    'DELETE FROM "User" WHERE "Id" = $1',
+    [userIdToDelete]
+  );
+};
 
-export const deleteSocialWorkerProfileAsync = async(userIdToDelete) =>{
-  await DatabaseHandler.executeSingleQueryAsync(`DELETE FROM "UserRole" WHERE "UserId" = $1`,[userIdToDelete]);
-  await DatabaseHandler.executeSingleQueryAsync(`DELETE FROM "SocialWorker" WHERE "UserId" = $1`,[userIdToDelete]);
-  await DatabaseHandler.executeSingleQueryAsync(`DELETE FROM "User" WHERE "Id" = $1`,[userIdToDelete]);
-}
+export const deleteSocialWorkerProfileAsync = async (userIdToDelete) => {
+  await DatabaseHandler.executeSingleQueryAsync(
+    `DELETE FROM "UserRole" WHERE "UserId" = $1`,
+    [userIdToDelete]
+  );
+  await DatabaseHandler.executeSingleQueryAsync(
+    `DELETE FROM "SocialWorker" WHERE "UserId" = $1`,
+    [userIdToDelete]
+  );
+  await DatabaseHandler.executeSingleQueryAsync(
+    `DELETE FROM "User" WHERE "Id" = $1`,
+    [userIdToDelete]
+  );
+};
 
-export const deleteParentProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync(`DELETE FROM "UserRole" WHERE "UserId" = $1`,[userIdToDelete]);
-  await DatabaseHandler.executeSingleQueryAsync(`DELETE FROM "Parent" WHERE "UserId" = $1`,[userIdToDelete]);
-  await DatabaseHandler.executeSingleQueryAsync(`DELETE FROM "User" WHERE "Id" = $1`,[userIdToDelete]);
-}
+export const deleteParentProfileAsync = async () => {
+  await DatabaseHandler.executeSingleQueryAsync(
+    `DELETE FROM "UserRole" WHERE "UserId" = $1`,
+    [userIdToDelete]
+  );
+  await DatabaseHandler.executeSingleQueryAsync(
+    `DELETE FROM "Parent" WHERE "UserId" = $1`,
+    [userIdToDelete]
+  );
+  await DatabaseHandler.executeSingleQueryAsync(
+    `DELETE FROM "User" WHERE "Id" = $1`,
+    [userIdToDelete]
+  );
+};
 
 /**
  * Edit Profiles
  */
 
-export const editChildProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync('',[]);
-}
+export const editChildProfileAsync = async () => {
+  await DatabaseHandler.executeSingleQueryAsync("", []);
+};
 
-export const editStaffProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync('',[]);
-}
+export const editStaffProfileAsync = async () => {
+  await DatabaseHandler.executeSingleQueryAsync("", []);
+};
 
-export const editSocialWorkerProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync('',[]);
-}
+export const editSocialWorkerProfileAsync = async () => {
+  await DatabaseHandler.executeSingleQueryAsync("", []);
+};
 
-export const editParentProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync('',[]);
-}
-
+export const editParentProfileAsync = async () => {
+  await DatabaseHandler.executeSingleQueryAsync("", []);
+};
 
 /**
  * View profiles by managers
  */
 
 export const viewChildProfilesAsync = async (childId) => {
-  const results = await DatabaseHandler.executeSingleQueryAsync( `  SELECT
+  const results = await DatabaseHandler.executeSingleQueryAsync(
+    `  SELECT
   "FullName",
   "DOB",
   "Gender",
@@ -230,12 +277,15 @@ FROM
 INNER JOIN
   "Orphanage" ON "ChildProfile"."OrphanageId" = "Orphanage"."Id"
 WHERE
-  "ChildProfile"."Id" = $1;`, [childId]);
+  "ChildProfile"."Id" = $1;`,
+    [childId]
+  );
   return results;
 };
 
-export const viewStaffProfileAsync = async(Id) =>{
-  const results= await DatabaseHandler.executeSingleQueryAsync(`select  "User"."Name" AS "UserName",
+export const viewStaffProfileAsync = async (Id) => {
+  const results = await DatabaseHandler.executeSingleQueryAsync(
+    `select  "User"."Name" AS "UserName",
   "User"."Email",
   "User"."PhoneNumber",
   "User"."Gender",
@@ -250,12 +300,15 @@ INNER JOIN
 INNER JOIN
 "Role" ON "UserRole"."RoleId" = "Role"."Id"
 WHERE
-"User"."Id" = $1`,[Id]);
+"User"."Id" = $1`,
+    [Id]
+  );
   return results;
-}
+};
 
-export const viewSocialWorkerProfileAsync = async(Id) =>{
-  const results= await DatabaseHandler.executeSingleQueryAsync(`select  "User"."Name",
+export const viewSocialWorkerProfileAsync = async (Id) => {
+  const results = await DatabaseHandler.executeSingleQueryAsync(
+    `select  "User"."Name",
   "User"."Email",
   "User"."PhoneNumber",
   "User"."Gender",
@@ -270,12 +323,15 @@ FROM
 "User"
 INNER JOIN
 "SocialWorker" ON "User"."Id" = "SocialWorker"."UserId"
-WHERE "SocialWorker"."Id" = $1;`,[Id]);
+WHERE "SocialWorker"."Id" = $1;`,
+    [Id]
+  );
   return results;
-}
+};
 
-export const viewParentProfileAsync = async(Id) =>{
-  const results= await DatabaseHandler.executeSingleQueryAsync(`select  "NameOfFather",
+export const viewParentProfileAsync = async (Id) => {
+  const results = await DatabaseHandler.executeSingleQueryAsync(
+    `select  "NameOfFather",
   "NICOfFather",
   "MobileOfFather",
   "DOBOfFather",
@@ -288,16 +344,19 @@ export const viewParentProfileAsync = async(Id) =>{
  "Address"
  FROM
  "Parent"
- WHERE "Id" = $1;`,[Id]);
+ WHERE "Id" = $1;`,
+    [Id]
+  );
   return results;
-}
+};
 
 /**
  * External party view child profiles
  */
 
 export const viewChildInfoExternalAsync = async (childId) => {
-  const results = await DatabaseHandler.executeSingleQueryAsync(`SELECT
+  const results = await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT
   "FullName",
   "DOB",
   "Gender",
@@ -314,64 +373,74 @@ FROM
 INNER JOIN
   "Orphanage" ON "ChildProfile"."OrphanageId" = "Orphanage"."Id"
 WHERE
-  "ChildProfile"."Id" = $1;`, [childId]);
+  "ChildProfile"."Id" = $1;`,
+    [childId]
+  );
   return results;
 };
-
-
 
 /**
  * Profile count
  */
 
 // manager dashboard child profile count
-export const getChildProfileCountAsync = async(OrphanageId) =>{
+export const getChildProfileCountAsync = async (OrphanageId) => {
   // orphanage wise
-  return await DatabaseHandler.executeSingleQueryAsync(`SELECT COUNT(*)
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT COUNT(*)
   FROM "ChildProfile" WHERE
  "OrphanageId" = $1;
-  `,[OrphanageId]);
-
-  
+  `,
+    [OrphanageId]
+  );
 };
 
 // manager dashboard staff profile count
-export const getStaffCountAsync = async(OrphanageId) =>{
+export const getStaffCountAsync = async (OrphanageId) => {
   // orphanage wise
-  return await DatabaseHandler.executeSingleQueryAsync(`SELECT COUNT(*)
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT COUNT(*)
   FROM "User" 
   INNER JOIN
   "UserRole" ON "User"."Id" = "UserRole"."UserId"
   INNER JOIN
   "Role" ON "UserRole"."RoleId" = "Role"."Id"
   WHERE
-   "Role"."Name" IN ('admin', 'systemManager','orphanageStaff') and "User"."OrphanageId"= $1;`,[OrphanageId]);
+   "Role"."Name" IN ('admin', 'systemManager','orphanageStaff') and "User"."OrphanageId"= $1;`,
+    [OrphanageId]
+  );
 };
 
-
-
 // admin dashboard child profile count
-export const getChildProfileCountAdminAsync = async() =>{
-  return await DatabaseHandler.executeSingleQueryAsync('SELECT COUNT(*) FROM "ChildProfile"',[]);
-  
+export const getChildProfileCountAdminAsync = async () => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    'SELECT COUNT(*) FROM "ChildProfile"',
+    []
+  );
 };
 
 // admin dashboard staff profile count
-export const getStaffCountStaffAsync = async() =>{
-  return await DatabaseHandler.executeSingleQueryAsync(`SELECT COUNT(*)
+export const getStaffCountStaffAsync = async () => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT COUNT(*)
   FROM "User" 
   INNER JOIN
   "UserRole" ON "User"."Id" = "UserRole"."UserId"
   INNER JOIN
   "Role" ON "UserRole"."RoleId" = "Role"."Id"
   WHERE
-   "Role"."Name" IN ('admin', 'systemManager','orphanageStaff');`,[]);
+   "Role"."Name" IN ('admin', 'systemManager','orphanageStaff');`,
+    []
+  );
 };
 
 //total number of Orphanages
-export const getOrphanageCountAsync = async() =>{
-  return await DatabaseHandler.executeSingleQueryAsync(` SELECT COUNT(*)
-  FROM "Orphanage";`,[]);
+export const getOrphanageCountAsync = async () => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    ` SELECT COUNT(*)
+  FROM "Orphanage";`,
+    []
+  );
 };
 
 export const getUserByEmailAsync = async (email) => {
@@ -384,7 +453,37 @@ export const getUserByEmailAsync = async (email) => {
 //get all details of a child profile
 
 export const getChildProfileAllDetailsAsync = async (childId) => {
-  const results = await DatabaseHandler.executeSingleQueryAsync(`SELECT * FROM "ChildProfile" WHERE "Id" = $1;`, [childId]);
+  const results = await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT * FROM "ChildProfile" WHERE "Id" = $1;`,
+    [childId]
+  );
   return results;
 };
 
+export const getChildProfileNameListByOrphanageIdAsync = async (
+  orphanageId
+) => {
+  const result = await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT "Id", "FullName" FROM "ChildProfile" WHERE "OrphanageId"=$1`,
+    [orphanageId]
+  );
+  return result;
+};
+
+export const getSocialWorkerNameListByOrphanageIdAsync = async (orphanageId) => {
+  const result = await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT 
+      sw."Role",
+      u."Name",
+      sw."UserId"
+    FROM
+      "SocialWorker" AS sw
+    INNER JOIN
+      "User" AS u
+    ON u."OrphanageId"= $1
+    WHERE
+      sw."UserId" = u."Id" `,
+    [orphanageId]
+  );
+  return result;
+};

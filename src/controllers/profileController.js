@@ -1,12 +1,36 @@
 import asyncHandler from "express-async-handler";
 import {
-  getChildProfilesAsync, getStaffProfileListAsync,getSocialWorkerProfileListAsync,getParentProfileListAsync,
-  createChildProfileAsync,createStaffProfileAsync,createSocialWorkerProfileAsync,createParentProfileAsync,
-  deleteChildProfileAsync, deleteStaffProfileAsync,deleteSocialWorkerProfileAsync,deleteParentProfileAsync,
-  editChildProfileAsync, editStaffProfileAsync,editSocialWorkerProfileAsync,editParentProfileAsync,
-  viewChildProfilesAsync,viewStaffProfileAsync,viewSocialWorkerProfileAsync, viewParentProfileAsync,
-  viewChildInfoExternalAsync, getChildProfileCountAsync,getStaffCountAsync,getChildProfileCountAdminAsync,
-  getStaffCountStaffAsync, getUserByEmailAsync,CreateProfileVersionAsync,getOrphanageCountAsync,getChildProfileAllDetailsAsync
+  getChildProfilesAsync,
+  getStaffProfileListAsync,
+  getSocialWorkerProfileListAsync,
+  getParentProfileListAsync,
+  createChildProfileAsync,
+  createStaffProfileAsync,
+  createSocialWorkerProfileAsync,
+  createParentProfileAsync,
+  deleteChildProfileAsync,
+  deleteStaffProfileAsync,
+  deleteSocialWorkerProfileAsync,
+  deleteParentProfileAsync,
+  editChildProfileAsync,
+  editStaffProfileAsync,
+  editSocialWorkerProfileAsync,
+  editParentProfileAsync,
+  viewChildProfilesAsync,
+  viewStaffProfileAsync,
+  viewSocialWorkerProfileAsync,
+  viewParentProfileAsync,
+  viewChildInfoExternalAsync,
+  getChildProfileCountAsync,
+  getStaffCountAsync,
+  getChildProfileCountAdminAsync,
+  getStaffCountStaffAsync,
+  getUserByEmailAsync,
+  CreateProfileVersionAsync,
+  getOrphanageCountAsync,
+  getChildProfileAllDetailsAsync,
+  getChildProfileNameListByOrphanageIdAsync,
+  getSocialWorkerNameListByOrphanageIdAsync,
 } from "../services/profileService.js";
 import {
   generatePassword,
@@ -387,4 +411,22 @@ export const getChildProfileAllDetails = asyncHandler(async(req,res)=>{
     success:true,
     ChildProfiles:results
   })
+});
+
+export const getChildProfileNameListByOrphanageId = asyncHandler(async (req, res) => {
+  const result = await getChildProfileNameListByOrphanageIdAsync(req.body.orphanageId)
+  return res.status(200).json({
+    success: true,
+    childProfileNameList:result
+  });
+});
+
+export const getSocialWorkerNameListByOrphanageId = asyncHandler(async (req, res) => {
+  const result = await getSocialWorkerNameListByOrphanageIdAsync(
+    req.body.orphanageId
+  );
+  return res.status(200).json({
+    success: true,
+    socialWorkerNameList: result,
+  });
 });
