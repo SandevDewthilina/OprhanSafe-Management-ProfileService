@@ -118,7 +118,10 @@ export const createChildProfile = asyncHandler(async(req,res)=>{
 
 export const createStaffProfile = asyncHandler(async(req,res)=>{
   
-  const response= await RPCRequest(AUTH_SERVICE_RPC,{event:"REGISTER_USER",data:req.body})
+  const response= await RPCRequest(AUTH_SERVICE_RPC,{event:"REGISTER_USER",data:req.body});
+  const results = await getUserByEmailAsync(req.body.email);
+  await createUserRolesAsync(results[0].Id,req.body.RoleId);
+  
   return res.status(200).json({
     success:true
   })
