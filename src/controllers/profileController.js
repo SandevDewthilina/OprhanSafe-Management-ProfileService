@@ -292,10 +292,31 @@ export const editSocialWorkerProfile = asyncHandler(async(req,res)=>{
 });
 
 export const editParentProfile = asyncHandler(async(req,res)=>{
-  const results = await editParentProfileAsync();
+  const response= await RPCRequest(AUTH_SERVICE_RPC,{event:"UPDATE_USER",data:req.body});
+  const UserId = await getUserByEmailAsync(req.body.email);
+  const results = await editParentProfileAsync(
+      req.body.NameOfFather,
+      req.body.NICOfFather,
+      req.body.MobileOfFather,
+      req.body.DOBOfFather,
+      req.body.OccupationOfFather,
+      req.body.NameOfMother,
+      req.body.NICOfMother,
+      req.body.MobileOfMother,
+      req.body.DOBOfMother,
+      req.body.OccupationOfMother,
+      req.body.Address,
+      req.body.Email,
+      req.body.AdoptionPreference,
+      req.body.AgePreference,
+      req.body.GenderPreference,
+      req.body.NationalityPreference,
+      req.body.LanguagePreference,
+      UserId[0].Id,
+  );
   return res.status(200).json({
     success:true,
-    parentProfile:results
+    message: "successfully edited parent profile",
   })
 });
 

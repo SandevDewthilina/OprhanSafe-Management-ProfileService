@@ -302,8 +302,67 @@ export const editSocialWorkerProfileAsync = async(
       UserId]);
 }
 
-export const editParentProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync('',[]);
+export const editParentProfileAsync = async(
+  NameOfFather,
+  NICOfFather,
+  MobileOfFather,
+  DOBOfFather,
+  OccupationOfFather,
+  NameOfMother,
+  NICOfMother,
+  MobileOfMother,
+  DOBOfMother,
+  OccupationOfMother,
+  Address,
+  Email,
+  AdoptionPreference,
+  AgePreference,
+  GenderPreference,
+  NationalityPreference,
+  LanguagePreference,
+  UserId
+) =>{
+  await DatabaseHandler.executeSingleQueryAsync(`
+  UPDATE "Parent"
+      SET
+        "NameOfFather" = $1,
+        "NICOfFather" = $2,
+        "MobileOfFather" = $3,
+        "DOBOfFather" = $4,
+        "OccupationOfFather" = $5,
+        "NameOfMother" = $6,
+        "NICOfMother" = $7,
+        "MobileOfMother" = $8,
+        "DOBOfMother" = $9,
+        "OccupationOfMother" = $10,
+        "Address" = $11,
+        "Email" = $12,
+        "AdoptionPreference" = $13,
+        "AgePreference" = $14,
+        "GenderPreference" = $15,
+        "NationalityPreference" = $16,
+        "LanguagePreference" = $17
+      WHERE
+        "UserId" = $18`,[
+    NameOfFather,
+  NICOfFather,
+  MobileOfFather,
+  DOBOfFather,
+  OccupationOfFather,
+  NameOfMother,
+  NICOfMother,
+  MobileOfMother,
+  DOBOfMother,
+  OccupationOfMother,
+  Address,
+  Email,
+  AdoptionPreference,
+  AgePreference,
+  GenderPreference,
+  NationalityPreference,
+  LanguagePreference,
+  UserId
+  ]);
 }
 
 
