@@ -267,10 +267,11 @@ export const editChildProfile = asyncHandler(async(req,res)=>{
 });
 
 export const editStaffProfile = asyncHandler(async(req,res)=>{
-  const results = await editStaffProfileAsync();
+  const response= await RPCRequest(AUTH_SERVICE_RPC,{event:"UPDATE_USER",data:req.body});
+  //const results = await editStaffProfileAsync();
   return res.status(200).json({
     success:true,
-    parentProfile:results
+    message: "successfully edited staff profile",
   })
 });
 
