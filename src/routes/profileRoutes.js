@@ -1,7 +1,7 @@
 import express from "express";
 import { 
     getChildProfileList, getStaffProfileList, getSocialWorkerProfileList,getParentProfileList,
-    createChildProfile, createStaffProfile, createSocialWorkerProfile,createParentProfile,
+    createChildProfile, createStaffProfile, createSocialWorkerProfile,createParentProfile,createManagerProfile,
     deleteChildProfile, deleteStaffProfile, deleteSocialWorkerProfile, deleteParentProfile,
     editChildProfile,editStaffProfile,editSocialWorkerProfile,editParentProfile,
     viewChildProfiles,viewStaffProfile, viewSocialWorkerProfile,viewParentProfile,
@@ -19,6 +19,7 @@ router.route("/getParentProfileList").get(protect, getParentProfileList);
 
 router.route("/createChildProfile").post(protect, createChildProfile);
 router.route("/createStaffProfile").post(protect, createStaffProfile);
+router.route("/createManagerProfile").post(protect, createManagerProfile);
 router.route("/createSocialWorkerProfile").post(protect, createSocialWorkerProfile);
 router.route("/createParentProfile").post(protect, createParentProfile);
 

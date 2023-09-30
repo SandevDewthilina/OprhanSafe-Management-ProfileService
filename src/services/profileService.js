@@ -26,7 +26,7 @@ INNER JOIN
 INNER JOIN
 "Role" ON "UserRole"."RoleId" = "Role"."Id"
 WHERE
- "Role"."Name" IN ('admin', 'systemManager','orphanageStaff');`,[]);
+ "Role"."Name" IN ('orphanageManager','orphanageStaff','systemAdministrator');`,[]);
   return results;
 }
 
@@ -149,12 +149,73 @@ export const createUserRolesAsync = async(UserId,RoleId) =>{
   await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "UserRole" ("UserId", "RoleId") VALUES ($1, $2)`,[UserId,RoleId]);
 }
 
-export const createSocialWorkerProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync('',[]);
+export const createSocialWorkerProfileAsync = async(Category,Organization,Role,Experience,UserId) =>{
+  await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "SocialWorker" ("Category", "Organization", "Role", "Experience", "UserId")
+  VALUES ($1, $2, $3, $4, $5)
+  RETURNING "Id";`,[Category,Organization,Role,Experience,UserId]);
 }
 
-export const createParentProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync(``,[]);
+export const createParentProfileAsync = async(
+  NameOfFather,
+  NICOfFather,
+  MobileOfFather,
+  DOBOfFather,
+  OccupationOfFather,
+  NameOfMother,
+  NICOfMother,
+  MobileOfMother,
+  DOBOfMother,
+  OccupationOfMother,
+  Address,
+  Email,
+  AdoptionPreference,
+  AgePreference,
+  GenderPreference,
+  NationalityPreference,
+  LanguagePreference,
+  UserId
+) =>{
+  await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "Parent" (
+    "NameOfFather",
+    "NICOfFather",
+    "MobileOfFather",
+    "DOBOfFather",
+    "OccupationOfFather",
+    "NameOfMother",
+    "NICOfMother",
+    "MobileOfMother",
+    "DOBOfMother",
+    "OccupationOfMother",
+    "Address",
+    "Email",
+    "AdoptionPreference",
+    "AgePreference",
+    "GenderPreference",
+    "NationalityPreference",
+    "LanguagePreference",
+    "UserId"
+  ) VALUES (
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
+  ) RETURNING "Id";`,[
+    NameOfFather,
+  NICOfFather,
+  MobileOfFather,
+  DOBOfFather,
+  OccupationOfFather,
+  NameOfMother,
+  NICOfMother,
+  MobileOfMother,
+  DOBOfMother,
+  OccupationOfMother,
+  Address,
+  Email,
+  AdoptionPreference,
+  AgePreference,
+  GenderPreference,
+  NationalityPreference,
+  LanguagePreference,
+  UserId
+  ]);
 }
 
 /**
@@ -416,4 +477,34 @@ export const getProfileVersionAsync = async () => {
   const results = await DatabaseHandler.executeSingleQueryAsync(`select * from "ProfileVersion";`, []);
   return results;
 };
+
+// get role Id
+export const getStaffRoleIdAsync = async () => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `select "Id" from "Role" where "Name"= 'orphanageStaff';`,
+    []
+  );
+};
+
+export const getSocialWorkerRoleIdAsync = async () => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `select "Id" from "Role" where "Name"='socialWorker';`,
+    []
+  );
+};
+
+export const getParentRoleIdAsync = async () => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `select "Id" from "Role" where "Name"='parent';`,
+    []
+  );
+};
+
+export const getManagerRoleIdAsync = async () => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `select "Id" from "Role" where "Name"='orphanageManager';`,
+    []
+  );
+};
+
 

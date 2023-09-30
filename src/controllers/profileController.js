@@ -7,7 +7,7 @@ import {
   viewChildProfilesAsync,viewStaffProfileAsync,viewSocialWorkerProfileAsync, viewParentProfileAsync,
   viewChildInfoExternalAsync, getChildProfileCountAsync,getStaffCountAsync,getChildProfileCountAdminAsync,
   getStaffCountStaffAsync, getUserByEmailAsync,CreateProfileVersionAsync,getOrphanageCountAsync,getChildProfileAllDetailsAsync,
-  getProfileVersionAsync,createUserRolesAsync
+  getProfileVersionAsync,createUserRolesAsync,getStaffRoleIdAsync,getSocialWorkerRoleIdAsync,getParentRoleIdAsync,getManagerRoleIdAsync
 } from "../services/profileService.js";
 import {
   generatePassword,
@@ -120,26 +120,76 @@ export const createStaffProfile = asyncHandler(async(req,res)=>{
   
   const response= await RPCRequest(AUTH_SERVICE_RPC,{event:"REGISTER_USER",data:req.body});
   const results = await getUserByEmailAsync(req.body.email);
-  await createUserRolesAsync(results[0].Id,req.body.RoleId);
+  const RoleId = await getStaffRoleIdAsync();
+  await createUserRolesAsync(results[0].Id,RoleId[0].Id);
   
   return res.status(200).json({
-    success:true
+    success:true,
+    message: "successfully created a staff profile",
   })
 });
 
-export const createSocialWorkerProfile = asyncHandler(async(req,res)=>{
-  const results = await createSocialWorkerProfileAsync();
+export const createManagerProfile = asyncHandler(async(req,res)=>{
+  
+  const response= await RPCRequest(AUTH_SERVICE_RPC,{event:"REGISTER_USER",data:req.body});
+  const results = await getUserByEmailAsync(req.body.email);
+  const RoleId = await getManagerRoleIdAsync();
+  await createUserRolesAsync(results[0].Id,RoleId[0].Id);
+  
   return res.status(200).json({
     success:true,
-    socialWorkerProfile:results
+    message: "successfully created a Manager profile",
+  })
+});
+
+
+export const createSocialWorkerProfile = asyncHandler(async(req,res)=>{
+  const response= await RPCRequest(AUTH_SERVICE_RPC,{event:"REGISTER_USER",data:req.body});
+  const UserId = await getUserByEmailAsync(req.body.email);
+  const RoleId = await getSocialWorkerRoleIdAsync();
+  await createUserRolesAsync(UserId[0].Id,RoleId[0].Id);
+  const results = await createSocialWorkerProfileAsync(
+    req.body.Category,
+    req.body.Organization,
+    req.body.Role,
+    req.body.Experience,
+    UserId[0].Id,
+    );
+  return res.status(200).json({
+    success:true,
+    message: "successfully created a socialWorker profile",
   })
 });
 
 export const createParentProfile = asyncHandler(async(req,res)=>{
-  const results = await createParentProfileAsync();
+  const response= await RPCRequest(AUTH_SERVICE_RPC,{event:"REGISTER_USER",data:req.body});
+  const UserId = await getUserByEmailAsync(req.body.email);
+  const RoleId = await getParentRoleIdAsync();
+  await createUserRolesAsync(UserId[0].Id,RoleId[0].Id);
+  const results = await createParentProfileAsync(
+      req.body.NameOfFather,
+      req.body.NICOfFather,
+      req.body.MobileOfFather,
+      req.body.DOBOfFather,
+      req.body.OccupationOfFather,
+      req.body.NameOfMother,
+      req.body.NICOfMother,
+      req.body.MobileOfMother,
+      req.body.DOBOfMother,
+      req.body.OccupationOfMother,
+      req.body.Address,
+      req.body.Email,
+      req.body.AdoptionPreference,
+      req.body.AgePreference,
+      req.body.GenderPreference,
+      req.body.NationalityPreference,
+      req.body.LanguagePreference,
+      UserId[0].Id,
+  );
+
   return res.status(200).json({
     success:true,
-    parentProfile:results
+    message: "successfully created a parent profile",
   })
 });
 
