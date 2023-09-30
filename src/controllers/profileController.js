@@ -276,10 +276,18 @@ export const editStaffProfile = asyncHandler(async(req,res)=>{
 });
 
 export const editSocialWorkerProfile = asyncHandler(async(req,res)=>{
-  const results = await editSocialWorkerProfileAsync();
+  const response= await RPCRequest(AUTH_SERVICE_RPC,{event:"UPDATE_USER",data:req.body});
+  const UserId = await getUserByEmailAsync(req.body.email);
+  const results = await editSocialWorkerProfileAsync(
+    req.body.Category,
+      req.body.Organization,
+      req.body.Role,
+      req.body.Experience,
+      UserId[0].Id,
+  );
   return res.status(200).json({
     success:true,
-    parentProfile:results
+    message: "successfully edited social worker profile",
   })
 });
 

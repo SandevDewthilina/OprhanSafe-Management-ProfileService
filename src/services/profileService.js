@@ -281,8 +281,25 @@ export const editStaffProfileAsync = async() =>{
   await DatabaseHandler.executeSingleQueryAsync(``,[]);
 }
 
-export const editSocialWorkerProfileAsync = async() =>{
-  await DatabaseHandler.executeSingleQueryAsync('',[]);
+export const editSocialWorkerProfileAsync = async(
+      Category,
+      Organization,
+      Role,
+      Experience,
+      UserId,
+) =>{
+  await DatabaseHandler.executeSingleQueryAsync(`UPDATE "SocialWorker"
+  SET
+    "Category" = $1,
+    "Organization" = $2,
+    "Role" = $3,
+    "Experience" = $4
+  WHERE
+    "UserId" = $5`,[Category,
+      Organization,
+      Role,
+      Experience,
+      UserId]);
 }
 
 export const editParentProfileAsync = async() =>{
