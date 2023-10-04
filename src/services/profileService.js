@@ -156,20 +156,12 @@ export const createStaffProfileAsync = async ({
   );
 };
 
-export const createSocialWorkerProfileAsync = async () => {
-  await DatabaseHandler.executeSingleQueryAsync(``, []);
-};
-
 
 export const createUserRolesAsync = async (UserId, RoleId) => {
   await DatabaseHandler.executeSingleQueryAsync(
     `INSERT INTO "UserRole" ("UserId", "RoleId") VALUES ($1, $2)`,
     [UserId, RoleId]
   );
-};
-
-export const createParentProfileAsync = async () => {
-  await DatabaseHandler.executeSingleQueryAsync(``, []);
 };
 
 export const createSocialWorkerProfileAsync = async(Category,Organization,Role,Experience,UserId) =>{
@@ -373,9 +365,6 @@ export const editStaffProfileAsync = async () => {
   await DatabaseHandler.executeSingleQueryAsync("", []);
 };
 
-export const editSocialWorkerProfileAsync = async () => {
-  await DatabaseHandler.executeSingleQueryAsync("", []);
-};
 
 export const editSocialWorkerProfileAsync = async(
       Category,
@@ -461,10 +450,6 @@ export const editParentProfileAsync = async(
   ]);
 }
 
-
-export const editParentProfileAsync = async () => {
-  await DatabaseHandler.executeSingleQueryAsync("", []);
-};
 
 /**
  * View profiles by managers
