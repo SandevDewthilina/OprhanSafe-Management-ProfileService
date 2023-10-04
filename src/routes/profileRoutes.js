@@ -1,5 +1,36 @@
 import express from "express";
-import { 
+
+import {
+  getChildProfileList,
+  getStaffProfileList,
+  getSocialWorkerProfileList,
+  getParentProfileList,
+  createChildProfile,
+  createStaffProfile,
+  createSocialWorkerProfile,
+  createParentProfile,
+  deleteChildProfile,
+  deleteStaffProfile,
+  deleteSocialWorkerProfile,
+  deleteParentProfile,
+  editChildProfile,
+  editStaffProfile,
+  editSocialWorkerProfile,
+  editParentProfile,
+  viewChildProfiles,
+  viewStaffProfile,
+  viewSocialWorkerProfile,
+  viewParentProfile,
+  viewChildInfoExternal,
+  getChildProfileCount,
+  getStaffCount,
+  getChildProfileCountAdmin,
+  getStaffCountStaff,
+  getOrphanageCount,
+  getChildProfileAllDetails,
+  getChildProfileNameListByOrphanageId,
+  getSocialWorkerNameListByOrphanageId,
+  getProfileVersion,
     getChildProfileList, getStaffProfileList, getSocialWorkerProfileList,getParentProfileList,
     createChildProfile, createStaffProfile, createSocialWorkerProfile,createParentProfile,createManagerProfile,
     deleteChildProfile, deleteStaffProfile, deleteSocialWorkerProfile, deleteParentProfile,
@@ -14,20 +45,29 @@ const router = express.Router();
 
 router.route("/getChildProfileList").get(protect, getChildProfileList);
 router.route("/getStaffProfileList").get(protect, getStaffProfileList);
-router.route("/getSocialWorkerProfileList").get(protect, getSocialWorkerProfileList);
+router
+  .route("/getSocialWorkerProfileList")
+  .get(protect, getSocialWorkerProfileList);
 router.route("/getParentProfileList").get(protect, getParentProfileList);
 
 router.route("/createChildProfile").post(protect, createChildProfile);
 router.route("/createStaffProfile").post(protect, createStaffProfile);
+
+router
+  .route("/createSocialWorkerProfile")
+  .post(protect, createSocialWorkerProfile);
+
 router.route("/createManagerProfile").post(protect, createManagerProfile);
 router.route("/createSocialWorkerProfile").post(protect, createSocialWorkerProfile);
+
 router.route("/createParentProfile").post(protect, createParentProfile);
 
 router.route("/deleteChildProfile").delete(protect, deleteChildProfile);
 router.route("/deleteStaffProfile").delete(protect, deleteStaffProfile);
-router.route("/deleteSocialWorkerProfile").delete(protect, deleteSocialWorkerProfile);
+router
+  .route("/deleteSocialWorkerProfile")
+  .delete(protect, deleteSocialWorkerProfile);
 router.route("/deleteParentProfile").delete(protect, deleteParentProfile);
-
 
 router.route("/editChildProfile").put(protect, editChildProfile);
 router.route("/editStaffProfile").put(protect, editStaffProfile);   //auth-service update user
@@ -43,11 +83,22 @@ router.route("/viewChildInfoExternal").get(protect, viewChildInfoExternal);
 
 router.route("/getChildProfileCount").get(protect, getChildProfileCount);
 router.route("/getStaffCount").get(protect, getStaffCount);
-router.route("/getChildProfileCountAdmin").get(protect, getChildProfileCountAdmin);
+router
+  .route("/getChildProfileCountAdmin")
+  .get(protect, getChildProfileCountAdmin);
 router.route("/getStaffCountAdmin").get(protect, getStaffCountStaff);
 router.route("/getOrphanageCount").get(protect, getOrphanageCount);
+
+router
+  .route("/getChildProfileAllDetails")
+  .get(protect, getChildProfileAllDetails);
+router
+  .route("/getChildProfileNameListByOrphanageId")
+  .get(protect, getChildProfileNameListByOrphanageId);
+router
+  .route("/getSocialWorkerNameListByOrphanageId")
+  .get(protect, getSocialWorkerNameListByOrphanageId);
 
 router.route("/getChildProfileAllDetails").get(protect, getChildProfileAllDetails);
 router.route("/getProfileVersion").get(protect, getProfileVersion);
 export default router;
-

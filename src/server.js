@@ -14,7 +14,7 @@ app.use(cookieParser());
 // runMigrations()
 
 // RPCObserver
-RPCObserver(PROFILE_SERVICE_RPC);
+// RPCObserver(PROFILE_SERVICE_RPC);
 
 // routes
 app.use("/api/profile", profileRoutes);
