@@ -31,6 +31,14 @@ import {
   getChildProfileAllDetailsAsync,
   getChildProfileNameListByOrphanageIdAsync,
   getSocialWorkerNameListByOrphanageIdAsync,
+  getChildProfilesAsync, getStaffProfileListAsync,getSocialWorkerProfileListAsync,getParentProfileListAsync,
+  createChildProfileAsync,createStaffProfileAsync,createSocialWorkerProfileAsync,createParentProfileAsync,
+  deleteChildProfileAsync, deleteStaffProfileAsync,deleteSocialWorkerProfileAsync,deleteParentProfileAsync,
+  editChildProfileAsync, editStaffProfileAsync,editSocialWorkerProfileAsync,editParentProfileAsync,
+  viewChildProfilesAsync,viewStaffProfileAsync,viewSocialWorkerProfileAsync, viewParentProfileAsync,
+  viewChildInfoExternalAsync, getChildProfileCountAsync,getStaffCountAsync,getChildProfileCountAdminAsync,
+  getStaffCountStaffAsync, getUserByEmailAsync,CreateProfileVersionAsync,getOrphanageCountAsync,getChildProfileAllDetailsAsync,
+  getProfileVersionAsync,createUserRolesAsync,getStaffRoleIdAsync,getSocialWorkerRoleIdAsync,getParentRoleIdAsync,getManagerRoleIdAsync
 } from "../services/profileService.js";
 import { generatePassword } from "../utils/index.js";
 
@@ -161,6 +169,82 @@ export const createParentProfile = asyncHandler(async (req, res) => {
     success: true,
     parentProfile: results,
   });
+
+export const createStaffProfile = asyncHandler(async(req,res)=>{
+  
+  const response= await RPCRequest(AUTH_SERVICE_RPC,{event:"REGISTER_USER",data:req.body});
+  const results = await getUserByEmailAsync(req.body.email);
+  const RoleId = await getStaffRoleIdAsync();
+  await createUserRolesAsync(results[0].Id,RoleId[0].Id);
+  
+  return res.status(200).json({
+    success:true,
+    message: "successfully created a staff profile",
+  })
+});
+
+export const createManagerProfile = asyncHandler(async(req,res)=>{
+  
+  const response= await RPCRequest(AUTH_SERVICE_RPC,{event:"REGISTER_USER",data:req.body});
+  const results = await getUserByEmailAsync(req.body.email);
+  const RoleId = await getManagerRoleIdAsync();
+  await createUserRolesAsync(results[0].Id,RoleId[0].Id);
+  
+  return res.status(200).json({
+    success:true,
+    message: "successfully created a Manager profile",
+  })
+});
+
+
+export const createSocialWorkerProfile = asyncHandler(async(req,res)=>{
+  const response= await RPCRequest(AUTH_SERVICE_RPC,{event:"REGISTER_USER",data:req.body});
+  const UserId = await getUserByEmailAsync(req.body.email);
+  const RoleId = await getSocialWorkerRoleIdAsync();
+  await createUserRolesAsync(UserId[0].Id,RoleId[0].Id);
+  const results = await createSocialWorkerProfileAsync(
+    req.body.Category,
+    req.body.Organization,
+    req.body.Role,
+    req.body.Experience,
+    UserId[0].Id,
+    );
+  return res.status(200).json({
+    success:true,
+    message: "successfully created a socialWorker profile",
+  })
+});
+
+export const createParentProfile = asyncHandler(async(req,res)=>{
+  const response= await RPCRequest(AUTH_SERVICE_RPC,{event:"REGISTER_USER",data:req.body});
+  const UserId = await getUserByEmailAsync(req.body.email);
+  const RoleId = await getParentRoleIdAsync();
+  await createUserRolesAsync(UserId[0].Id,RoleId[0].Id);
+  const results = await createParentProfileAsync(
+      req.body.NameOfFather,
+      req.body.NICOfFather,
+      req.body.MobileOfFather,
+      req.body.DOBOfFather,
+      req.body.OccupationOfFather,
+      req.body.NameOfMother,
+      req.body.NICOfMother,
+      req.body.MobileOfMother,
+      req.body.DOBOfMother,
+      req.body.OccupationOfMother,
+      req.body.Address,
+      req.body.Email,
+      req.body.AdoptionPreference,
+      req.body.AgePreference,
+      req.body.GenderPreference,
+      req.body.NationalityPreference,
+      req.body.LanguagePreference,
+      UserId[0].Id,
+  );
+
+  return res.status(200).json({
+    success:true,
+    message: "successfully created a parent profile",
+  })
 });
 
 /**
@@ -276,6 +360,59 @@ export const editParentProfile = asyncHandler(async (req, res) => {
     success: true,
     parentProfile: results,
   });
+
+export const editStaffProfile = asyncHandler(async(req,res)=>{
+  const response= await RPCRequest(AUTH_SERVICE_RPC,{event:"UPDATE_USER",data:req.body});
+  //const results = await editStaffProfileAsync();
+  return res.status(200).json({
+    success:true,
+    message: "successfully edited staff profile",
+  })
+});
+
+export const editSocialWorkerProfile = asyncHandler(async(req,res)=>{
+  const response= await RPCRequest(AUTH_SERVICE_RPC,{event:"UPDATE_USER",data:req.body});
+  const UserId = await getUserByEmailAsync(req.body.email);
+  const results = await editSocialWorkerProfileAsync(
+    req.body.Category,
+      req.body.Organization,
+      req.body.Role,
+      req.body.Experience,
+      UserId[0].Id,
+  );
+  return res.status(200).json({
+    success:true,
+    message: "successfully edited social worker profile",
+  })
+});
+
+export const editParentProfile = asyncHandler(async(req,res)=>{
+  const response= await RPCRequest(AUTH_SERVICE_RPC,{event:"UPDATE_USER",data:req.body});
+  const UserId = await getUserByEmailAsync(req.body.email);
+  const results = await editParentProfileAsync(
+      req.body.NameOfFather,
+      req.body.NICOfFather,
+      req.body.MobileOfFather,
+      req.body.DOBOfFather,
+      req.body.OccupationOfFather,
+      req.body.NameOfMother,
+      req.body.NICOfMother,
+      req.body.MobileOfMother,
+      req.body.DOBOfMother,
+      req.body.OccupationOfMother,
+      req.body.Address,
+      req.body.Email,
+      req.body.AdoptionPreference,
+      req.body.AgePreference,
+      req.body.GenderPreference,
+      req.body.NationalityPreference,
+      req.body.LanguagePreference,
+      UserId[0].Id,
+  );
+  return res.status(200).json({
+    success:true,
+    message: "successfully edited parent profile",
+  })
 });
 
 /**

@@ -31,6 +31,13 @@ import {
   getChildProfileNameListByOrphanageId,
   getSocialWorkerNameListByOrphanageId,
   getProfileVersion,
+    getChildProfileList, getStaffProfileList, getSocialWorkerProfileList,getParentProfileList,
+    createChildProfile, createStaffProfile, createSocialWorkerProfile,createParentProfile,createManagerProfile,
+    deleteChildProfile, deleteStaffProfile, deleteSocialWorkerProfile, deleteParentProfile,
+    editChildProfile,editStaffProfile,editSocialWorkerProfile,editParentProfile,
+    viewChildProfiles,viewStaffProfile, viewSocialWorkerProfile,viewParentProfile,
+    viewChildInfoExternal,getChildProfileCount,getStaffCount,getChildProfileCountAdmin,
+    getStaffCountStaff,getOrphanageCount,getChildProfileAllDetails,getProfileVersion
 } from "../controllers/profileController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -45,9 +52,14 @@ router.route("/getParentProfileList").get(protect, getParentProfileList);
 
 router.route("/createChildProfile").post(protect, createChildProfile);
 router.route("/createStaffProfile").post(protect, createStaffProfile);
+
 router
   .route("/createSocialWorkerProfile")
   .post(protect, createSocialWorkerProfile);
+
+router.route("/createManagerProfile").post(protect, createManagerProfile);
+router.route("/createSocialWorkerProfile").post(protect, createSocialWorkerProfile);
+
 router.route("/createParentProfile").post(protect, createParentProfile);
 
 router.route("/deleteChildProfile").delete(protect, deleteChildProfile);
@@ -58,7 +70,7 @@ router
 router.route("/deleteParentProfile").delete(protect, deleteParentProfile);
 
 router.route("/editChildProfile").put(protect, editChildProfile);
-//router.route("/editStaffProfile").put(protect, editStaffProfile);   //auth-service update user
+router.route("/editStaffProfile").put(protect, editStaffProfile);   //auth-service update user
 router.route("/editSocialWorkerProfile").put(protect, editSocialWorkerProfile);
 router.route("/editParentProfile").put(protect, editParentProfile);
 
