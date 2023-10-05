@@ -643,6 +643,7 @@ export const getOrphanageCountAsync = async () => {
   );
 };
 
+// get the user by email
 export const getUserByEmailAsync = async (email) => {
   return await DatabaseHandler.executeSingleQueryAsync(
     'SELECT "Id" FROM "User" WHERE "Email" = $1 LIMIT 1',
@@ -660,6 +661,7 @@ export const getChildProfileAllDetailsAsync = async (childId) => {
   return results;
 };
 
+// get child profile list by orphanage
 export const getChildProfileNameListByOrphanageIdAsync = async (
   orphanageId
 ) => {
@@ -726,4 +728,22 @@ export const getManagerRoleIdAsync = async () => {
     []
   );
 };
+
+
+// get orphanage Id
+export const getOrphanageIdAsync = async (orphanageName) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `select "Id" from "Orphanage" where "Name"=$1;`,
+    [orphanageName]
+  );
+};
+
+// get user Id
+export const getUserIdAsync = async (RegisteredBy) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT "Id" FROM "User" WHERE "Name" = $1 LIMIT 1;`,
+    [RegisteredBy]
+  );
+};
+
 

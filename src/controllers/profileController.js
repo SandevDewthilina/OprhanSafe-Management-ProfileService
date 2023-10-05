@@ -37,6 +37,8 @@ import {
   getSocialWorkerRoleIdAsync,
   getParentRoleIdAsync,
   getManagerRoleIdAsync,
+  getOrphanageIdAsync,
+  getUserIdAsync,
 } from "../services/profileService.js";
 
 import { RPCRequest } from "../lib/rabbitmq/index.js";
@@ -117,8 +119,10 @@ export const createChildProfile = asyncHandler(async (req, res) => {
     BirthMother,
     ReasonForPlacement,
     RegisteredBy,
-    OrphanageId,
+    OrphanageName,
   } = req.body;
+  const OrphanageId=await getOrphanageIdAsync (OrphanageName);
+  const UserId=await getUserIdAsync(RegisteredBy);
   await createChildProfileAsync(
     FullName,
     DOB,
@@ -133,8 +137,8 @@ export const createChildProfile = asyncHandler(async (req, res) => {
     BirthFather,
     BirthMother,
     ReasonForPlacement,
-    RegisteredBy,
-    OrphanageId
+    UserId[0].Id,
+    OrphanageId[0].Id,
   );
   return res.status(200).json({
     success: true,
