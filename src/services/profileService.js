@@ -30,7 +30,7 @@ INNER JOIN
 INNER JOIN
 "Role" ON "UserRole"."RoleId" = "Role"."Id"
 WHERE
- "Role"."Name" IN ('admin', 'systemManager','orphanageStaff');`,
+ "Role"."Name" IN ('systemAdministrator', 'orphanageManager','orphanageStaff');`,
     []
   );
   return results;
@@ -135,35 +135,14 @@ export const createChildProfileAsync = async (
   return result;
 };
 
-export const createStaffProfileAsync = async ({
-  email,
-  username,
-  name,
-  phoneNumber,
-  hashedPassword,
-  orphanageId,
-  address,
-  nic,
-  gender,
-  dob,
-}) => {
-  await DatabaseHandler.executeSingleQueryAsync(
-    `INSERT INTO "User" 
-    ("Username", "Name", "Email","PhoneNumber","PasswordHash", "OrphanageId", "Address", "NIC", "Gender", "DOB" ) 
-    values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
-    [
-      username,
-      name,
-      email,
-      phoneNumber,
-      hashedPassword,
-      orphanageId,
-      address,
-      nic,
-      gender,
-      dob,
-    ]
-  );
+export const createStaffProfileAsync = async (Id,files) => {
+  for (const fieldName in files) {
+    const file = files[fieldName][0];
+    await uploadSingleFileAsync(
+      `staffFiles/${Id}/${fieldName}/`,
+      file
+    );
+  }
 };
 
 

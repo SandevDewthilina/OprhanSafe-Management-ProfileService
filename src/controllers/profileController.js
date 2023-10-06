@@ -157,9 +157,12 @@ export const createStaffProfile = asyncHandler(async (req, res) => {
     address,
     nic,
     gender,
-    dob,}= req.body;
+    dob,
+    employeeType,}= JSON.parse(req.body.otherInfo);
+    
   const O_Id=await getOrphanageIdAsync (OrphanageName);
   const orphanageId=O_Id[0].Id;
+  let RoleId; // Declare RoleId here
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
     event: "REGISTER_USER",
     data: {email,
@@ -173,8 +176,23 @@ export const createStaffProfile = asyncHandler(async (req, res) => {
       gender,
       dob},
   });
-  const results = await getUserByEmailAsync(req.body.email);
-  const RoleId = await getStaffRoleIdAsync();
+  const results = await getUserByEmailAsync(email);
+  
+  // Check the employeeType and set RoleId accordingly
+  if (employeeType === "orphanageManager") {
+    RoleId = await getManagerRoleIdAsync();
+  } else if(employeeType === "orphanageStaff") {
+    RoleId = await getStaffRoleIdAsync();
+  }else {
+    // If employeeType is neither "orphanageManager" nor "orphanageStaff", return an error message
+    return res.status(400).json({
+      success: false,
+      message: "Invalid employeeType. Must be 'orphanageManager' or 'orphanageStaff'.",
+    });
+  }
+  await createStaffProfileAsync(results[0].Id,req.files);
+
+  
   await createUserRolesAsync(results[0].Id, RoleId[0].Id);
 
   return res.status(200).json({
