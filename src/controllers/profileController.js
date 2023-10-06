@@ -37,6 +37,8 @@ import {
   getSocialWorkerRoleIdAsync,
   getParentRoleIdAsync,
   getManagerRoleIdAsync,
+  getOrphanageIdAsync,
+  getUserIdAsync,
 } from "../services/profileService.js";
 
 import { RPCRequest } from "../lib/rabbitmq/index.js";
@@ -117,8 +119,10 @@ export const createChildProfile = asyncHandler(async (req, res) => {
     BirthMother,
     ReasonForPlacement,
     RegisteredBy,
-    OrphanageId,
-  } = req.body;
+    OrphanageName,
+  } = JSON.parse(req.body.otherInfo);
+  const OrphanageId=await getOrphanageIdAsync (OrphanageName);
+  const UserId=await getUserIdAsync(RegisteredBy);
   await createChildProfileAsync(
     FullName,
     DOB,
@@ -133,8 +137,9 @@ export const createChildProfile = asyncHandler(async (req, res) => {
     BirthFather,
     BirthMother,
     ReasonForPlacement,
-    RegisteredBy,
-    OrphanageId
+    UserId[0].Id,
+    OrphanageId[0].Id,
+    req.files
   );
   return res.status(200).json({
     success: true,
@@ -143,12 +148,51 @@ export const createChildProfile = asyncHandler(async (req, res) => {
 });
 
 export const createStaffProfile = asyncHandler(async (req, res) => {
+  const {email,
+    username,
+    name,
+    phoneNumber,
+    password,
+    OrphanageName,
+    address,
+    nic,
+    gender,
+    dob,
+    employeeType,}= JSON.parse(req.body.otherInfo);
+    
+  const O_Id=await getOrphanageIdAsync (OrphanageName);
+  const orphanageId=O_Id[0].Id;
+  let RoleId; // Declare RoleId here
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
     event: "REGISTER_USER",
-    data: req.body,
+    data: {email,
+      username,
+      name,
+      phoneNumber,
+      password,
+      orphanageId , 
+      address,
+      nic,
+      gender,
+      dob},
   });
-  const results = await getUserByEmailAsync(req.body.email);
-  const RoleId = await getStaffRoleIdAsync();
+  const results = await getUserByEmailAsync(email);
+  
+  // Check the employeeType and set RoleId accordingly
+  if (employeeType === "orphanageManager") {
+    RoleId = await getManagerRoleIdAsync();
+  } else if(employeeType === "orphanageStaff") {
+    RoleId = await getStaffRoleIdAsync();
+  }else {
+    // If employeeType is neither "orphanageManager" nor "orphanageStaff", return an error message
+    return res.status(400).json({
+      success: false,
+      message: "Invalid employeeType. Must be 'orphanageManager' or 'orphanageStaff'.",
+    });
+  }
+  await createStaffProfileAsync(results[0].Id,req.files);
+
+  
   await createUserRolesAsync(results[0].Id, RoleId[0].Id);
 
   return res.status(200).json({
@@ -173,19 +217,45 @@ export const createManagerProfile = asyncHandler(async (req, res) => {
 });
 
 export const createSocialWorkerProfile = asyncHandler(async (req, res) => {
+  const {email,
+    username,
+    name,
+    phoneNumber,
+    password,
+    OrphanageName,
+    address,
+    nic,
+    gender,
+    dob,
+    Category,
+    Organization,
+    Role,
+    Experience,}= JSON.parse(req.body.otherInfo);
+  const O_Id=await getOrphanageIdAsync (OrphanageName);
+  const orphanageId=O_Id[0].Id;
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
     event: "REGISTER_USER",
-    data: req.body,
+    data: {email,
+      username,
+      name,
+      phoneNumber,
+      password,
+      orphanageId , 
+      address,
+      nic,
+      gender,
+      dob},
   });
-  const UserId = await getUserByEmailAsync(req.body.email);
+  const UserId = await getUserByEmailAsync(email);
   const RoleId = await getSocialWorkerRoleIdAsync();
   await createUserRolesAsync(UserId[0].Id, RoleId[0].Id);
   const results = await createSocialWorkerProfileAsync(
-    req.body.Category,
-    req.body.Organization,
-    req.body.Role,
-    req.body.Experience,
-    UserId[0].Id
+    Category,
+    Organization,
+    Role,
+    Experience,
+    UserId[0].Id,
+    req.files
   );
   return res.status(200).json({
     success: true,
@@ -194,32 +264,71 @@ export const createSocialWorkerProfile = asyncHandler(async (req, res) => {
 });
 
 export const createParentProfile = asyncHandler(async (req, res) => {
+  const {email,
+    username,
+    name,
+    phoneNumber,
+    password,
+    OrphanageName,
+    address,
+    nic,
+    gender,
+    dob,
+    NameOfFather,
+    NICOfFather,
+    MobileOfFather,
+    DOBOfFather,
+    OccupationOfFather,
+    NameOfMother,
+    NICOfMother,
+    MobileOfMother,
+    DOBOfMother,
+    OccupationOfMother,
+    Address,
+    Email,
+    AdoptionPreference,
+    AgePreference,
+    GenderPreference,
+    NationalityPreference,
+    LanguagePreference,}= JSON.parse(req.body.otherInfo);
+  const O_Id=await getOrphanageIdAsync (OrphanageName);
+  const orphanageId=O_Id[0].Id;
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
     event: "REGISTER_USER",
-    data: req.body,
+    data: {email,
+      username,
+      name,
+      phoneNumber,
+      password,
+      orphanageId , 
+      address,
+      nic,
+      gender,
+      dob},
   });
-  const UserId = await getUserByEmailAsync(req.body.email);
+  const UserId = await getUserByEmailAsync(email);
   const RoleId = await getParentRoleIdAsync();
   await createUserRolesAsync(UserId[0].Id, RoleId[0].Id);
   const results = await createParentProfileAsync(
-    req.body.NameOfFather,
-    req.body.NICOfFather,
-    req.body.MobileOfFather,
-    req.body.DOBOfFather,
-    req.body.OccupationOfFather,
-    req.body.NameOfMother,
-    req.body.NICOfMother,
-    req.body.MobileOfMother,
-    req.body.DOBOfMother,
-    req.body.OccupationOfMother,
-    req.body.Address,
-    req.body.Email,
-    req.body.AdoptionPreference,
-    req.body.AgePreference,
-    req.body.GenderPreference,
-    req.body.NationalityPreference,
-    req.body.LanguagePreference,
-    UserId[0].Id
+    NameOfFather,
+    NICOfFather,
+    MobileOfFather,
+    DOBOfFather,
+    OccupationOfFather,
+    NameOfMother,
+    NICOfMother,
+    MobileOfMother,
+    DOBOfMother,
+    OccupationOfMother,
+    Address,
+    Email,
+    AdoptionPreference,
+    AgePreference,
+    GenderPreference,
+    NationalityPreference,
+    LanguagePreference,
+    UserId[0].Id,
+    req.files
   );
 
   return res.status(200).json({

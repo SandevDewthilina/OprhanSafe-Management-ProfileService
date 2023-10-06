@@ -34,7 +34,7 @@ import {
   getProfileVersion,
 } from "../controllers/profileController.js";
 import { protect } from "../middleware/authMiddleware.js";
-
+import { upload } from "../middleware/s3UploadMiddleware.js";
 const router = express.Router();
 
 router.route("/getChildProfileList").get(protect, getChildProfileList);
@@ -44,19 +44,41 @@ router
   .get(protect, getSocialWorkerProfileList);
 router.route("/getParentProfileList").get(protect, getParentProfileList);
 
-router.route("/createChildProfile").post(protect, createChildProfile);
-router.route("/createStaffProfile").post(protect, createStaffProfile);
+router.route("/createChildProfile").post(protect,upload.fields([
+  {name: 'MedicalDoc'},
+  {name: 'Photograph'},
+  {name: 'ChildProtectionCertificate'},
+  {name: 'BirthCertificate'},
+  {name: 'MothersBirthCertificate'},
+  {name: 'FathersBirthCertificate'}
+]), createChildProfile);
+router.route("/createStaffProfile").post(protect,upload.fields([
+  {name: 'NICDoc'},
+  {name: 'BirthCertificate'},
+  {name: 'ResidenceCertificate'},
+  {name: 'CharacterCertificate'},
+]), createStaffProfile);
 
 router
   .route("/createSocialWorkerProfile")
-  .post(protect, createSocialWorkerProfile);
+  .post(protect,upload.fields([
+    {name: 'NICDoc'},
+    {name: 'BirthCertificate'},
+    {name: 'OccupationCertificate'},
+  ]), createSocialWorkerProfile);
 
 router.route("/createManagerProfile").post(protect, createManagerProfile);
-router
-  .route("/createSocialWorkerProfile")
-  .post(protect, createSocialWorkerProfile);
 
-router.route("/createParentProfile").post(protect, createParentProfile);
+
+router.route("/createParentProfile").post(protect,upload.fields([
+  {name: 'NICDocMother'},
+  {name: 'NICDocFather'},
+  {name: 'MarriageCertificate'},
+  {name: 'ResidenceCertificate'},
+  {name: 'MothersBirthCertificate'},
+  {name: 'FathersBirthCertificate'},
+  {name: 'SalaryPaySheet'},
+]), createParentProfile);
 
 router.route("/deleteChildProfile").delete(protect, deleteChildProfile);
 router.route("/deleteStaffProfile").delete(protect, deleteStaffProfile);

@@ -1,4 +1,5 @@
 import DatabaseHandler from "../lib/database/DatabaseHandler.js";
+import {uploadSingleFileAsync} from "../lib/aws/index.js"
 
 /**
  * get profile lists
@@ -29,7 +30,7 @@ INNER JOIN
 INNER JOIN
 "Role" ON "UserRole"."RoleId" = "Role"."Id"
 WHERE
- "Role"."Name" IN ('admin', 'systemManager','orphanageStaff');`,
+ "Role"."Name" IN ('systemAdministrator', 'orphanageManager','orphanageStaff');`,
     []
   );
   return results;
@@ -85,9 +86,10 @@ export const createChildProfileAsync = async (
   BirthMother,
   ReasonForPlacement,
   RegisteredBy,
-  OrphanageId
+  OrphanageId,
+  files
 ) => {
-  return await DatabaseHandler.executeSingleQueryAsync(
+  const result = await DatabaseHandler.executeSingleQueryAsync(
     `INSERT INTO "ChildProfile" (
     "FullName",
     "DOB",
@@ -104,7 +106,7 @@ export const createChildProfileAsync = async (
     "ReasonForPlacement",
     "RegisteredBy",
     "OrphanageId"
-) VALUES ($1, $2,$3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15);`,
+) VALUES ($1, $2,$3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING *;`,
     [
       FullName,
       DOB,
@@ -123,37 +125,24 @@ export const createChildProfileAsync = async (
       OrphanageId,
     ]
   );
+  for (const fieldName in files) {
+    const file = files[fieldName][0];
+    await uploadSingleFileAsync(
+      `childFiles/${result[0].Id}/${fieldName}/`,
+      file
+    );
+  }
+  return result;
 };
 
-export const createStaffProfileAsync = async ({
-  email,
-  username,
-  name,
-  phoneNumber,
-  hashedPassword,
-  orphanageId,
-  address,
-  nic,
-  gender,
-  dob,
-}) => {
-  await DatabaseHandler.executeSingleQueryAsync(
-    `INSERT INTO "User" 
-    ("Username", "Name", "Email","PhoneNumber","PasswordHash", "OrphanageId", "Address", "NIC", "Gender", "DOB" ) 
-    values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
-    [
-      username,
-      name,
-      email,
-      phoneNumber,
-      hashedPassword,
-      orphanageId,
-      address,
-      nic,
-      gender,
-      dob,
-    ]
-  );
+export const createStaffProfileAsync = async (Id,files) => {
+  for (const fieldName in files) {
+    const file = files[fieldName][0];
+    await uploadSingleFileAsync(
+      `staffFiles/${Id}/${fieldName}/`,
+      file
+    );
+  }
 };
 
 
@@ -164,10 +153,17 @@ export const createUserRolesAsync = async (UserId, RoleId) => {
   );
 };
 
-export const createSocialWorkerProfileAsync = async(Category,Organization,Role,Experience,UserId) =>{
-  await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "SocialWorker" ("Category", "Organization", "Role", "Experience", "UserId")
+export const createSocialWorkerProfileAsync = async(Category,Organization,Role,Experience,UserId,files) =>{
+  const result = await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "SocialWorker" ("Category", "Organization", "Role", "Experience", "UserId")
   VALUES ($1, $2, $3, $4, $5)
-  RETURNING "Id";`,[Category,Organization,Role,Experience,UserId]);
+  RETURNING *;`,[Category,Organization,Role,Experience,UserId]);
+  for (const fieldName in files) {
+    const file = files[fieldName][0];
+    await uploadSingleFileAsync(
+      `socialWorkerFiles/${result[0].Id}/${fieldName}/`,
+      file
+    );
+  }
 }
 
 export const createParentProfileAsync = async(
@@ -188,9 +184,10 @@ export const createParentProfileAsync = async(
   GenderPreference,
   NationalityPreference,
   LanguagePreference,
-  UserId
+  UserId,
+  files
 ) =>{
-  await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "Parent" (
+  const result = await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "Parent" (
     "NameOfFather",
     "NICOfFather",
     "MobileOfFather",
@@ -211,7 +208,7 @@ export const createParentProfileAsync = async(
     "UserId"
   ) VALUES (
     $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
-  ) RETURNING "Id";`,[
+  ) RETURNING * ;`,[
     NameOfFather,
   NICOfFather,
   MobileOfFather,
@@ -231,6 +228,13 @@ export const createParentProfileAsync = async(
   LanguagePreference,
   UserId
   ]);
+  for (const fieldName in files) {
+    const file = files[fieldName][0];
+    await uploadSingleFileAsync(
+      `parentFiles/${result[0].Id}/${fieldName}/`,
+      file
+    );
+  }
 }
 
 
@@ -643,6 +647,7 @@ export const getOrphanageCountAsync = async () => {
   );
 };
 
+// get the user by email
 export const getUserByEmailAsync = async (email) => {
   return await DatabaseHandler.executeSingleQueryAsync(
     'SELECT "Id" FROM "User" WHERE "Email" = $1 LIMIT 1',
@@ -660,6 +665,7 @@ export const getChildProfileAllDetailsAsync = async (childId) => {
   return results;
 };
 
+// get child profile list by orphanage
 export const getChildProfileNameListByOrphanageIdAsync = async (
   orphanageId
 ) => {
@@ -726,4 +732,22 @@ export const getManagerRoleIdAsync = async () => {
     []
   );
 };
+
+
+// get orphanage Id
+export const getOrphanageIdAsync = async (orphanageName) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `select "Id" from "Orphanage" where "Name"=$1;`,
+    [orphanageName]
+  );
+};
+
+// get user Id
+export const getUserIdAsync = async (RegisteredBy) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT "Id" FROM "User" WHERE "Name" = $1 LIMIT 1;`,
+    [RegisteredBy]
+  );
+};
+
 
