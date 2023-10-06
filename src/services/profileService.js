@@ -1,4 +1,5 @@
 import DatabaseHandler from "../lib/database/DatabaseHandler.js";
+import {uploadSingleFileAsync} from "../lib/aws/index.js"
 
 /**
  * get profile lists
@@ -85,9 +86,10 @@ export const createChildProfileAsync = async (
   BirthMother,
   ReasonForPlacement,
   RegisteredBy,
-  OrphanageId
+  OrphanageId,
+  files
 ) => {
-  return await DatabaseHandler.executeSingleQueryAsync(
+  const result = await DatabaseHandler.executeSingleQueryAsync(
     `INSERT INTO "ChildProfile" (
     "FullName",
     "DOB",
@@ -104,7 +106,7 @@ export const createChildProfileAsync = async (
     "ReasonForPlacement",
     "RegisteredBy",
     "OrphanageId"
-) VALUES ($1, $2,$3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15);`,
+) VALUES ($1, $2,$3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING *;`,
     [
       FullName,
       DOB,
@@ -123,6 +125,14 @@ export const createChildProfileAsync = async (
       OrphanageId,
     ]
   );
+  for (const fieldName in files) {
+    const file = files[fieldName][0];
+    await uploadSingleFileAsync(
+      `childFiles/${result[0].Id}/${fieldName}/`,
+      file
+    );
+  }
+  return result;
 };
 
 export const createStaffProfileAsync = async ({

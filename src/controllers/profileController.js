@@ -120,7 +120,7 @@ export const createChildProfile = asyncHandler(async (req, res) => {
     ReasonForPlacement,
     RegisteredBy,
     OrphanageName,
-  } = req.body;
+  } = JSON.parse(req.body.otherInfo);
   const OrphanageId=await getOrphanageIdAsync (OrphanageName);
   const UserId=await getUserIdAsync(RegisteredBy);
   await createChildProfileAsync(
@@ -139,6 +139,7 @@ export const createChildProfile = asyncHandler(async (req, res) => {
     ReasonForPlacement,
     UserId[0].Id,
     OrphanageId[0].Id,
+    req.files
   );
   return res.status(200).json({
     success: true,
@@ -147,9 +148,30 @@ export const createChildProfile = asyncHandler(async (req, res) => {
 });
 
 export const createStaffProfile = asyncHandler(async (req, res) => {
+  const {email,
+    username,
+    name,
+    phoneNumber,
+    password,
+    OrphanageName,
+    address,
+    nic,
+    gender,
+    dob,}= req.body;
+  const O_Id=await getOrphanageIdAsync (OrphanageName);
+  const orphanageId=O_Id[0].Id;
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
     event: "REGISTER_USER",
-    data: req.body,
+    data: {email,
+      username,
+      name,
+      phoneNumber,
+      password,
+      orphanageId , 
+      address,
+      nic,
+      gender,
+      dob},
   });
   const results = await getUserByEmailAsync(req.body.email);
   const RoleId = await getStaffRoleIdAsync();
@@ -177,9 +199,30 @@ export const createManagerProfile = asyncHandler(async (req, res) => {
 });
 
 export const createSocialWorkerProfile = asyncHandler(async (req, res) => {
+  const {email,
+    username,
+    name,
+    phoneNumber,
+    password,
+    OrphanageName,
+    address,
+    nic,
+    gender,
+    dob,}= req.body;
+  const O_Id=await getOrphanageIdAsync (OrphanageName);
+  const orphanageId=O_Id[0].Id;
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
     event: "REGISTER_USER",
-    data: req.body,
+    data: {email,
+      username,
+      name,
+      phoneNumber,
+      password,
+      orphanageId , 
+      address,
+      nic,
+      gender,
+      dob},
   });
   const UserId = await getUserByEmailAsync(req.body.email);
   const RoleId = await getSocialWorkerRoleIdAsync();
@@ -198,9 +241,30 @@ export const createSocialWorkerProfile = asyncHandler(async (req, res) => {
 });
 
 export const createParentProfile = asyncHandler(async (req, res) => {
+  const {email,
+    username,
+    name,
+    phoneNumber,
+    password,
+    OrphanageName,
+    address,
+    nic,
+    gender,
+    dob,}= req.body;
+  const O_Id=await getOrphanageIdAsync (OrphanageName);
+  const orphanageId=O_Id[0].Id;
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
     event: "REGISTER_USER",
-    data: req.body,
+    data: {email,
+      username,
+      name,
+      phoneNumber,
+      password,
+      orphanageId , 
+      address,
+      nic,
+      gender,
+      dob},
   });
   const UserId = await getUserByEmailAsync(req.body.email);
   const RoleId = await getParentRoleIdAsync();

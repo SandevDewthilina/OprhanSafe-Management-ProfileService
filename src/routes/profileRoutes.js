@@ -34,7 +34,7 @@ import {
   getProfileVersion,
 } from "../controllers/profileController.js";
 import { protect } from "../middleware/authMiddleware.js";
-
+import { upload } from "../middleware/s3UploadMiddleware.js";
 const router = express.Router();
 
 router.route("/getChildProfileList").get(protect, getChildProfileList);
@@ -44,7 +44,14 @@ router
   .get(protect, getSocialWorkerProfileList);
 router.route("/getParentProfileList").get(protect, getParentProfileList);
 
-router.route("/createChildProfile").post(protect, createChildProfile);
+router.route("/createChildProfile").post(protect,upload.fields([
+  {name: 'MedicalDoc'},
+  {name: 'Photograph'},
+  {name: 'ChildProtectionCertificate'},
+  {name: 'BirthCertificate'},
+  {name: 'MothersBirthCertificate'},
+  {name: 'FathersBirthCertificate'}
+]), createChildProfile);
 router.route("/createStaffProfile").post(protect, createStaffProfile);
 
 router
