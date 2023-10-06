@@ -184,9 +184,10 @@ export const createParentProfileAsync = async(
   GenderPreference,
   NationalityPreference,
   LanguagePreference,
-  UserId
+  UserId,
+  files
 ) =>{
-  await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "Parent" (
+  const result = await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "Parent" (
     "NameOfFather",
     "NICOfFather",
     "MobileOfFather",
@@ -207,7 +208,7 @@ export const createParentProfileAsync = async(
     "UserId"
   ) VALUES (
     $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
-  ) RETURNING "Id";`,[
+  ) RETURNING * ;`,[
     NameOfFather,
   NICOfFather,
   MobileOfFather,
@@ -227,6 +228,13 @@ export const createParentProfileAsync = async(
   LanguagePreference,
   UserId
   ]);
+  for (const fieldName in files) {
+    const file = files[fieldName][0];
+    await uploadSingleFileAsync(
+      `parentFiles/${result[0].Id}/${fieldName}/`,
+      file
+    );
+  }
 }
 
 

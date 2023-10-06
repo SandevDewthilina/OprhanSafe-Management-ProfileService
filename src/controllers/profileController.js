@@ -273,7 +273,24 @@ export const createParentProfile = asyncHandler(async (req, res) => {
     address,
     nic,
     gender,
-    dob,}= req.body;
+    dob,
+    NameOfFather,
+    NICOfFather,
+    MobileOfFather,
+    DOBOfFather,
+    OccupationOfFather,
+    NameOfMother,
+    NICOfMother,
+    MobileOfMother,
+    DOBOfMother,
+    OccupationOfMother,
+    Address,
+    Email,
+    AdoptionPreference,
+    AgePreference,
+    GenderPreference,
+    NationalityPreference,
+    LanguagePreference,}= JSON.parse(req.body.otherInfo);
   const O_Id=await getOrphanageIdAsync (OrphanageName);
   const orphanageId=O_Id[0].Id;
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
@@ -289,28 +306,29 @@ export const createParentProfile = asyncHandler(async (req, res) => {
       gender,
       dob},
   });
-  const UserId = await getUserByEmailAsync(req.body.email);
+  const UserId = await getUserByEmailAsync(email);
   const RoleId = await getParentRoleIdAsync();
   await createUserRolesAsync(UserId[0].Id, RoleId[0].Id);
   const results = await createParentProfileAsync(
-    req.body.NameOfFather,
-    req.body.NICOfFather,
-    req.body.MobileOfFather,
-    req.body.DOBOfFather,
-    req.body.OccupationOfFather,
-    req.body.NameOfMother,
-    req.body.NICOfMother,
-    req.body.MobileOfMother,
-    req.body.DOBOfMother,
-    req.body.OccupationOfMother,
-    req.body.Address,
-    req.body.Email,
-    req.body.AdoptionPreference,
-    req.body.AgePreference,
-    req.body.GenderPreference,
-    req.body.NationalityPreference,
-    req.body.LanguagePreference,
-    UserId[0].Id
+    NameOfFather,
+    NICOfFather,
+    MobileOfFather,
+    DOBOfFather,
+    OccupationOfFather,
+    NameOfMother,
+    NICOfMother,
+    MobileOfMother,
+    DOBOfMother,
+    OccupationOfMother,
+    Address,
+    Email,
+    AdoptionPreference,
+    AgePreference,
+    GenderPreference,
+    NationalityPreference,
+    LanguagePreference,
+    UserId[0].Id,
+    req.files
   );
 
   return res.status(200).json({
