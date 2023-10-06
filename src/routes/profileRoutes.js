@@ -52,18 +52,33 @@ router.route("/createChildProfile").post(protect,upload.fields([
   {name: 'MothersBirthCertificate'},
   {name: 'FathersBirthCertificate'}
 ]), createChildProfile);
-router.route("/createStaffProfile").post(protect, createStaffProfile);
+router.route("/createStaffProfile").post(protect,upload.fields([
+  {name: 'NICDoc'},
+  {name: 'BirthCertificate'},
+  {name: 'ResidenceCertificate'},
+  {name: 'CharacterCertificate'},
+]), createStaffProfile);
 
 router
   .route("/createSocialWorkerProfile")
-  .post(protect, createSocialWorkerProfile);
+  .post(protect,upload.fields([
+    {name: 'NICDoc'},
+    {name: 'BirthCertificate'},
+    {name: 'OccupationCertificate'},
+  ]), createSocialWorkerProfile);
 
 router.route("/createManagerProfile").post(protect, createManagerProfile);
-router
-  .route("/createSocialWorkerProfile")
-  .post(protect, createSocialWorkerProfile);
 
-router.route("/createParentProfile").post(protect, createParentProfile);
+
+router.route("/createParentProfile").post(protect,upload.fields([
+  {name: 'NICDocMother'},
+  {name: 'NICDocFather'},
+  {name: 'MarriageCertificate'},
+  {name: 'ResidenceCertificate'},
+  {name: 'MothersBirthCertificate'},
+  {name: 'FathersBirthCertificate'},
+  {name: 'SalaryPaySheet'},
+]), createParentProfile);
 
 router.route("/deleteChildProfile").delete(protect, deleteChildProfile);
 router.route("/deleteStaffProfile").delete(protect, deleteStaffProfile);
