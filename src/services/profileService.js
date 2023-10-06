@@ -153,10 +153,17 @@ export const createUserRolesAsync = async (UserId, RoleId) => {
   );
 };
 
-export const createSocialWorkerProfileAsync = async(Category,Organization,Role,Experience,UserId) =>{
-  await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "SocialWorker" ("Category", "Organization", "Role", "Experience", "UserId")
+export const createSocialWorkerProfileAsync = async(Category,Organization,Role,Experience,UserId,files) =>{
+  const result = await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "SocialWorker" ("Category", "Organization", "Role", "Experience", "UserId")
   VALUES ($1, $2, $3, $4, $5)
-  RETURNING "Id";`,[Category,Organization,Role,Experience,UserId]);
+  RETURNING *;`,[Category,Organization,Role,Experience,UserId]);
+  for (const fieldName in files) {
+    const file = files[fieldName][0];
+    await uploadSingleFileAsync(
+      `socialWorkerFiles/${result[0].Id}/${fieldName}/`,
+      file
+    );
+  }
 }
 
 export const createParentProfileAsync = async(
