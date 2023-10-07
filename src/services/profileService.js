@@ -8,7 +8,7 @@ import {uploadSingleFileAsync} from "../lib/aws/index.js"
 
 export const getChildProfilesAsync = async () => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
-    `select "ChildProfile"."FullName", "ChildProfile"."DOB", "ChildProfile"."Gender", "ChildProfile"."DateOfAdmission", "Orphanage"."Name" AS "OrphanageName" from "ChildProfile"
+    `select "ChildProfile"."FullName", "ChildProfile"."DOB", "ChildProfile"."Gender", "ChildProfile"."DateOfAdmission", "Orphanage"."Name" AS "OrphanageName","ChildProfile"."Id" AS "ChildId" from "ChildProfile"
     INNER JOIN
       "Orphanage" ON "ChildProfile"."OrphanageId" = "Orphanage"."Id";`,
     []
@@ -19,6 +19,7 @@ export const getChildProfilesAsync = async () => {
 export const getStaffProfileListAsync = async () => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
     `select  "User"."Name" AS "UserName",
+    "User"."Id" AS "UserId",
   "User"."Email",
   "User"."PhoneNumber",
   "User"."Gender",
@@ -39,6 +40,7 @@ WHERE
 export const getSocialWorkerProfileListAsync = async () => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
     `select  "User"."Name",
+    "User"."Id" AS "workerId",
   "User"."Email",
   "User"."PhoneNumber",
   "User"."Gender",
@@ -55,6 +57,7 @@ INNER JOIN
 export const getParentProfileListAsync = async () => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
     `select  "NameOfFather",
+    "UserId",
   "NameOfMother",
  "Email",
  "MobileOfFather",
@@ -324,7 +327,8 @@ export const editChildProfileAsync = async (
   BirthFather,
   BirthMother,
   ReasonForPlacement,
-  OrphanageId
+  OrphanageId,
+  files
 ) => {
   await DatabaseHandler.executeSingleQueryAsync(
     `UPDATE "ChildProfile"
@@ -363,10 +367,23 @@ export const editChildProfileAsync = async (
       Id,
     ]
   );
+  for (const fieldName in files) {
+    const file = files[fieldName][0];
+    await uploadSingleFileAsync(
+      `childFiles/${Id}/${fieldName}/`,
+      file
+    );
+  }
 };
 
-export const editStaffProfileAsync = async () => {
-  await DatabaseHandler.executeSingleQueryAsync("", []);
+export const editStaffProfileAsync = async (files,Id) => {
+  for (const fieldName in files) {
+    const file = files[fieldName][0];
+    await uploadSingleFileAsync(
+      `staffFiles/${Id}/${fieldName}/`,
+      file
+    );
+  }
 };
 
 
@@ -376,6 +393,7 @@ export const editSocialWorkerProfileAsync = async(
       Role,
       Experience,
       UserId,
+      files
 ) =>{
   await DatabaseHandler.executeSingleQueryAsync(`UPDATE "SocialWorker"
   SET
@@ -389,6 +407,14 @@ export const editSocialWorkerProfileAsync = async(
       Role,
       Experience,
       UserId]);
+
+      for (const fieldName in files) {
+        const file = files[fieldName][0];
+        await uploadSingleFileAsync(
+          `socialWorkerFiles/${UserId}/${fieldName}/`,
+          file
+        );
+      }
 }
 
 export const editParentProfileAsync = async(
@@ -409,7 +435,8 @@ export const editParentProfileAsync = async(
   GenderPreference,
   NationalityPreference,
   LanguagePreference,
-  UserId
+  UserId,
+  files
 ) =>{
   await DatabaseHandler.executeSingleQueryAsync(`
   UPDATE "Parent"
@@ -452,6 +479,13 @@ export const editParentProfileAsync = async(
   LanguagePreference,
   UserId
   ]);
+  for (const fieldName in files) {
+    const file = files[fieldName][0];
+    await uploadSingleFileAsync(
+      `socialWorkerFiles/${UserId}/${fieldName}/`,
+      file
+    );
+  }
 }
 
 
@@ -490,10 +524,12 @@ WHERE
 export const viewStaffProfileAsync = async (Id) => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
     `select  "User"."Name" AS "UserName",
+    "User"."Id" AS "UserId",
   "User"."Email",
   "User"."PhoneNumber",
   "User"."Gender",
   "User"."Address",
+  "Orphanage"."Name" AS "OrphanageName",
   "User"."NIC",
   "User"."DOB",
 "Role"."Name" AS "RoleName"
@@ -503,6 +539,8 @@ INNER JOIN
 "UserRole" ON "User"."Id" = "UserRole"."UserId"
 INNER JOIN
 "Role" ON "UserRole"."RoleId" = "Role"."Id"
+INNER JOIN
+  "Orphanage" ON "User"."OrphanageId" = "Orphanage"."Id"
 WHERE
 "User"."Id" = $1`,
     [Id]
@@ -513,21 +551,25 @@ WHERE
 export const viewSocialWorkerProfileAsync = async (Id) => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
     `select  "User"."Name",
-  "User"."Email",
-  "User"."PhoneNumber",
-  "User"."Gender",
-  "User"."Address",
-  "User"."NIC",
-  "User"."DOB",
-"SocialWorker"."Organization",
-"SocialWorker"."Category",
-"SocialWorker"."Role",
-"SocialWorker"."Experience"
-FROM
-"User"
-INNER JOIN
-"SocialWorker" ON "User"."Id" = "SocialWorker"."UserId"
-WHERE "SocialWorker"."Id" = $1;`,
+    "User"."Id" as "WorkerId",
+   "User"."Email",
+   "User"."PhoneNumber",
+   "User"."Gender",
+   "User"."Address",
+   "User"."NIC",
+   "User"."DOB",
+ "SocialWorker"."Organization",
+ "SocialWorker"."Category",
+ "SocialWorker"."Role",
+ "SocialWorker"."Experience",
+ "Orphanage"."Name" AS "OrphanageName"
+ FROM
+ "User"
+ INNER JOIN
+ "SocialWorker" ON "User"."Id" = "SocialWorker"."UserId"
+ INNER JOIN
+  "Orphanage" ON "User"."OrphanageId" = "Orphanage"."Id"
+ WHERE "User"."Id" =$1;`,
     [Id]
   );
   return results;
@@ -535,20 +577,31 @@ WHERE "SocialWorker"."Id" = $1;`,
 
 export const viewParentProfileAsync = async (Id) => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
-    `select  "NameOfFather",
-  "NICOfFather",
-  "MobileOfFather",
-  "DOBOfFather",
-  "OccupationOfFather",
-   "NameOfMother",
- "DOBOfMother",
-  "OccupationOfMother",
- "MobileOfMother",
-  "Email",
- "Address"
- FROM
- "Parent"
- WHERE "Id" = $1;`,
+    `select
+    "NameOfFather",
+     "NICOfFather",
+     "MobileOfFather",
+     "DOBOfFather",
+     "OccupationOfFather",
+      "NameOfMother",
+    "DOBOfMother",
+     "OccupationOfMother",
+    "MobileOfMother",
+     "Parent"."Email",
+    "Parent"."Address",
+    "AdoptionPreference",
+    "AgePreference",
+    "GenderPreference",
+    "NationalityPreference",
+    "LanguagePreference",
+     "Orphanage"."Name" AS "OrphanageName"
+    FROM
+    "Parent"
+    INNER JOIN
+    "User" ON "User"."Id" = "Parent"."UserId"
+    INNER JOIN
+     "Orphanage" ON "User"."OrphanageId" = "Orphanage"."Id"
+    WHERE "UserId" = $1;`,
     [Id]
   );
   return results;
