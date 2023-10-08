@@ -341,14 +341,15 @@ export const createParentProfile = asyncHandler(async (req, res) => {
  * Delete Profiles
  */
 export const deleteChildProfile = asyncHandler(async (req, res) => {
-  const { childId, commitMessage, committedByUserId } = req.body;
+  const { childId, commitMessage, committedByUserName } = req.body;
   const profileData = await getChildProfileAllDetailsAsync(childId);
+  const committedByUserId = await getUserIdAsync(committedByUserName);
   if (profileData) {
     await CreateProfileVersionAsync(
       childId,
       JSON.stringify(profileData),
       commitMessage,
-      committedByUserId
+      committedByUserId[0].Id
     );
     await deleteChildProfileAsync(childId);
   } else {
