@@ -87,10 +87,34 @@ router
   .delete(protect, deleteSocialWorkerProfile);
 router.route("/deleteParentProfile").delete(protect, deleteParentProfile);
 
-router.route("/editChildProfile").put(protect, editChildProfile);
-router.route("/editStaffProfile").put(protect, editStaffProfile); //auth-service update user
-router.route("/editSocialWorkerProfile").put(protect, editSocialWorkerProfile);
-router.route("/editParentProfile").put(protect, editParentProfile);
+router.route("/editChildProfile").put(protect,upload.fields([
+  {name: 'MedicalDoc'},
+  {name: 'Photograph'},
+  {name: 'ChildProtectionCertificate'},
+  {name: 'BirthCertificate'},
+  {name: 'MothersBirthCertificate'},
+  {name: 'FathersBirthCertificate'}
+]), editChildProfile);
+router.route("/editStaffProfile").put(protect,upload.fields([
+  {name: 'NICDoc'},
+  {name: 'BirthCertificate'},
+  {name: 'ResidenceCertificate'},
+  {name: 'CharacterCertificate'},
+]), editStaffProfile); 
+router.route("/editSocialWorkerProfile").put(protect, upload.fields([
+  {name: 'NICDoc'},
+  {name: 'BirthCertificate'},
+  {name: 'OccupationCertificate'},
+]),editSocialWorkerProfile);
+router.route("/editParentProfile").put(protect,upload.fields([
+  {name: 'NICDocMother'},
+  {name: 'NICDocFather'},
+  {name: 'MarriageCertificate'},
+  {name: 'ResidenceCertificate'},
+  {name: 'MothersBirthCertificate'},
+  {name: 'FathersBirthCertificate'},
+  {name: 'SalaryPaySheet'},
+]), editParentProfile);
 
 router.route("/viewChildProfiles").get(protect, viewChildProfiles);
 router.route("/viewStaffProfile").get(protect, viewStaffProfile);

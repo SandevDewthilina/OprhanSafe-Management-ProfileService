@@ -341,14 +341,15 @@ export const createParentProfile = asyncHandler(async (req, res) => {
  * Delete Profiles
  */
 export const deleteChildProfile = asyncHandler(async (req, res) => {
-  const { childId, commitMessage, committedByUserId } = req.body;
+  const { childId, commitMessage, committedByUserName } = req.body;
   const profileData = await getChildProfileAllDetailsAsync(childId);
+  const committedByUserId = await getUserIdAsync(committedByUserName);
   if (profileData) {
     await CreateProfileVersionAsync(
       childId,
       JSON.stringify(profileData),
       commitMessage,
-      committedByUserId
+      committedByUserId[0].Id
     );
     await deleteChildProfileAsync(childId);
   } else {
@@ -402,8 +403,10 @@ export const editChildProfile = asyncHandler(async (req, res) => {
     BirthFather,
     BirthMother,
     ReasonForPlacement,
-    OrphanageId,
-  } = req.body;
+    OrphanageName,
+  } = JSON.parse(req.body.otherInfo);
+  const O_Id=await getOrphanageIdAsync (OrphanageName);
+  const OrphanageId=O_Id[0].Id;
   const results = await editChildProfileAsync(
     Id,
     FullName,
@@ -419,7 +422,8 @@ export const editChildProfile = asyncHandler(async (req, res) => {
     BirthFather,
     BirthMother,
     ReasonForPlacement,
-    OrphanageId
+    OrphanageId,
+    req.files
   );
   return res.status(200).json({
     success: true,
@@ -429,29 +433,69 @@ export const editChildProfile = asyncHandler(async (req, res) => {
 });
 
 export const editStaffProfile = asyncHandler(async (req, res) => {
+  const {email,
+    id,
+    name,
+    phoneNumber,
+    OrphanageName,
+    address,
+    nic,
+    gender,
+    dob,
+    }=JSON.parse(req.body.otherInfo)
+  const O_Id=await getOrphanageIdAsync (OrphanageName);
+  const orphanageId=O_Id[0].Id;
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
     event: "UPDATE_USER",
-    data: req.body,
+    data: {email,
+      name,
+      phoneNumber,
+      orphanageId , 
+      address,
+      nic,
+      gender,
+      dob},
   });
-  //const results = await editStaffProfileAsync();
+  const results = await editStaffProfileAsync(req.files,id);
   return res.status(200).json({
     success: true,
     message: "successfully edited staff profile",
   });
 });
 
-export const editSocialWorkerProfile = asyncHandler(async (req, res) => {
+export const editSocialWorkerProfile = asyncHandler(async (req, res) => { const {email,
+  name,
+  phoneNumber,
+  OrphanageName,
+  address,
+  nic,
+  gender,
+  dob,
+  Category,
+  Organization,
+  Role,
+  Experience,}= JSON.parse(req.body.otherInfo);
+const O_Id=await getOrphanageIdAsync (OrphanageName);
+const orphanageId=O_Id[0].Id;
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
     event: "UPDATE_USER",
-    data: req.body,
+    data:  {email,
+      name,
+      phoneNumber,
+      orphanageId , 
+      address,
+      nic,
+      gender,
+      dob},
   });
-  const UserId = await getUserByEmailAsync(req.body.email);
+  const UserId = await getUserByEmailAsync(email);
   const results = await editSocialWorkerProfileAsync(
-    req.body.Category,
-    req.body.Organization,
-    req.body.Role,
-    req.body.Experience,
-    UserId[0].Id
+    Category,
+    Organization,
+    Role,
+    Experience,
+    UserId[0].Id,
+    req.files,
   );
   return res.status(200).json({
     success: true,
@@ -460,30 +504,65 @@ export const editSocialWorkerProfile = asyncHandler(async (req, res) => {
 });
 
 export const editParentProfile = asyncHandler(async (req, res) => {
+  const {email,
+    OrphanageName,
+    name,
+    phoneNumber,
+    address,
+    nic,
+    gender,
+    dob,
+    NameOfFather,
+    NICOfFather,
+    MobileOfFather,
+    DOBOfFather,
+    OccupationOfFather,
+    NameOfMother,
+    NICOfMother,
+    MobileOfMother,
+    DOBOfMother,
+    OccupationOfMother,
+    Address,
+    Email,
+    AdoptionPreference,
+    AgePreference,
+    GenderPreference,
+    NationalityPreference,
+    LanguagePreference,}= JSON.parse(req.body.otherInfo);
+  const O_Id=await getOrphanageIdAsync (OrphanageName);
+  const orphanageId=O_Id[0].Id;
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
     event: "UPDATE_USER",
-    data: req.body,
+    data: {email,
+      name,
+      phoneNumber,
+      orphanageId , 
+      address,
+      nic,
+      gender,
+      dob},
   });
-  const UserId = await getUserByEmailAsync(req.body.email);
+  const UserId = await getUserByEmailAsync(email);
   const results = await editParentProfileAsync(
-    req.body.NameOfFather,
-    req.body.NICOfFather,
-    req.body.MobileOfFather,
-    req.body.DOBOfFather,
-    req.body.OccupationOfFather,
-    req.body.NameOfMother,
-    req.body.NICOfMother,
-    req.body.MobileOfMother,
-    req.body.DOBOfMother,
-    req.body.OccupationOfMother,
-    req.body.Address,
-    req.body.Email,
-    req.body.AdoptionPreference,
-    req.body.AgePreference,
-    req.body.GenderPreference,
-    req.body.NationalityPreference,
-    req.body.LanguagePreference,
-    UserId[0].Id
+    NameOfFather,
+    NICOfFather,
+    MobileOfFather,
+    DOBOfFather,
+    OccupationOfFather,
+    NameOfMother,
+    NICOfMother,
+    MobileOfMother,
+    DOBOfMother,
+    OccupationOfMother,
+    Address,
+    Email,
+    AdoptionPreference,
+    AgePreference,
+    GenderPreference,
+    NationalityPreference,
+    LanguagePreference,
+    UserId[0].Id,
+    req.files
   );
   return res.status(200).json({
     success: true,
@@ -495,7 +574,7 @@ export const editParentProfile = asyncHandler(async (req, res) => {
  * View profiles by managers
  */
 export const viewChildProfiles = asyncHandler(async (req, res) => {
-  const results = await viewChildProfilesAsync(req.body.childId);
+  const results = await viewChildProfilesAsync(req.query.childId);
   // Remove the timestamp from DateOfBirth
   const formattedChildProfiles = results.map((profile) => {
     if (profile["DOB"]) {
@@ -513,11 +592,11 @@ export const viewChildProfiles = asyncHandler(async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    childProfile: formattedChildProfiles,
+    childProfile: formattedChildProfiles[0],
   });
 });
 export const viewStaffProfile = asyncHandler(async (req, res) => {
-  const results = await viewStaffProfileAsync(req.body.Id);
+  const results = await viewStaffProfileAsync(req.query.staffId);
   const formattedStaffProfiles = results.map((profile) => {
     if (profile["DOB"]) {
       const DOBTimestamp = new Date(profile["DOB"]);
@@ -528,11 +607,11 @@ export const viewStaffProfile = asyncHandler(async (req, res) => {
   });
   return res.status(200).json({
     success: true,
-    staffProfile: formattedStaffProfiles,
+    staffProfile: formattedStaffProfiles[0],
   });
 });
 export const viewSocialWorkerProfile = asyncHandler(async (req, res) => {
-  const results = await viewSocialWorkerProfileAsync(req.body.Id);
+  const results = await viewSocialWorkerProfileAsync(req.query.workerId);
   const formattedSocialWorkerProfiles = results.map((profile) => {
     if (profile["DOB"]) {
       const DOBTimestamp = new Date(profile["DOB"]);
@@ -543,11 +622,11 @@ export const viewSocialWorkerProfile = asyncHandler(async (req, res) => {
   });
   return res.status(200).json({
     success: true,
-    socialWorkerProfile: formattedSocialWorkerProfiles,
+    socialWorkerProfile: formattedSocialWorkerProfiles[0],
   });
 });
 export const viewParentProfile = asyncHandler(async (req, res) => {
-  const results = await viewParentProfileAsync();
+  const results = await viewParentProfileAsync(req.query.parentId);
   const formattedParentProfiles = results.map((profile) => {
     if (profile["DOBOfFather"]) {
       const DOBOfFatherTimestamp = new Date(profile["DOBOfFather"]);
@@ -563,7 +642,7 @@ export const viewParentProfile = asyncHandler(async (req, res) => {
   });
   return res.status(200).json({
     success: true,
-    parentProfile: formattedParentProfiles,
+    parentProfile: formattedParentProfiles[0],
   });
 });
 
