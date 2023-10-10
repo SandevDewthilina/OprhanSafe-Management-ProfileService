@@ -475,7 +475,7 @@ export const editSocialWorkerProfile = asyncHandler(async (req, res) => { const 
   Category,
   Organization,
   Role,
-  Experience,}= JSON.parse(req.body.otherInfo);
+  Experience,id,}= JSON.parse(req.body.otherInfo);
 const O_Id=await getOrphanageIdAsync (OrphanageName);
 const orphanageId=O_Id[0].Id;
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
@@ -487,7 +487,7 @@ const orphanageId=O_Id[0].Id;
       address,
       nic,
       gender,
-      dob},
+      dob,id},
   });
   const UserId = await getUserByEmailAsync(email);
   const results = await editSocialWorkerProfileAsync(
