@@ -454,7 +454,8 @@ export const editStaffProfile = asyncHandler(async (req, res) => {
       address,
       nic,
       gender,
-      dob},
+      dob,
+      id},
   });
   const results = await editStaffProfileAsync(req.files,id);
   return res.status(200).json({
