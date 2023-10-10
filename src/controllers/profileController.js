@@ -513,6 +513,7 @@ export const editParentProfile = asyncHandler(async (req, res) => {
     nic,
     gender,
     dob,
+    id,
     NameOfFather,
     NICOfFather,
     MobileOfFather,
@@ -541,7 +542,8 @@ export const editParentProfile = asyncHandler(async (req, res) => {
       address,
       nic,
       gender,
-      dob},
+      dob,
+      id},
   });
   const UserId = await getUserByEmailAsync(email);
   const results = await editParentProfileAsync(
