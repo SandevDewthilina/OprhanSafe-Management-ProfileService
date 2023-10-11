@@ -293,7 +293,7 @@ export const deleteSocialWorkerProfileAsync = async (userIdToDelete) => {
   );
 };
 
-export const deleteParentProfileAsync = async () => {
+export const deleteParentProfileAsync = async (userIdToDelete) => {
   await DatabaseHandler.executeSingleQueryAsync(
     `DELETE FROM "UserRole" WHERE "UserId" = $1`,
     [userIdToDelete]
