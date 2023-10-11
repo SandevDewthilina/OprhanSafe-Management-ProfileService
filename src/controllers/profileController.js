@@ -341,7 +341,7 @@ export const createParentProfile = asyncHandler(async (req, res) => {
  * Delete Profiles
  */
 export const deleteChildProfile = asyncHandler(async (req, res) => {
-  const { childId, commitMessage, committedByUserName } = req.body;
+  const { childId, commitMessage, committedByUserName } = JSON.parse(req.body.otherInfo);
   const profileData = await getChildProfileAllDetailsAsync(childId);
   const committedByUserId = await getUserIdAsync(committedByUserName);
   if (profileData) {
@@ -362,6 +362,7 @@ export const deleteChildProfile = asyncHandler(async (req, res) => {
     profileData: JSON.stringify(profileData),
   });
 });
+
 export const deleteStaffProfile = asyncHandler(async (req, res) => {
   const results = await deleteStaffProfileAsync(req.body.userIdToDelete);
   return res.status(200).json({
@@ -454,7 +455,8 @@ export const editStaffProfile = asyncHandler(async (req, res) => {
       address,
       nic,
       gender,
-      dob},
+      dob,
+      id},
   });
   const results = await editStaffProfileAsync(req.files,id);
   return res.status(200).json({
@@ -474,7 +476,7 @@ export const editSocialWorkerProfile = asyncHandler(async (req, res) => { const 
   Category,
   Organization,
   Role,
-  Experience,}= JSON.parse(req.body.otherInfo);
+  Experience,id,}= JSON.parse(req.body.otherInfo);
 const O_Id=await getOrphanageIdAsync (OrphanageName);
 const orphanageId=O_Id[0].Id;
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
@@ -486,7 +488,7 @@ const orphanageId=O_Id[0].Id;
       address,
       nic,
       gender,
-      dob},
+      dob,id},
   });
   const UserId = await getUserByEmailAsync(email);
   const results = await editSocialWorkerProfileAsync(
@@ -512,6 +514,7 @@ export const editParentProfile = asyncHandler(async (req, res) => {
     nic,
     gender,
     dob,
+    id,
     NameOfFather,
     NICOfFather,
     MobileOfFather,
@@ -540,7 +543,8 @@ export const editParentProfile = asyncHandler(async (req, res) => {
       address,
       nic,
       gender,
-      dob},
+      dob,
+      id},
   });
   const UserId = await getUserByEmailAsync(email);
   const results = await editParentProfileAsync(
