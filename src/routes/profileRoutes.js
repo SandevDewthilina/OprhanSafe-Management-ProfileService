@@ -32,6 +32,9 @@ import {
   getChildProfileNameListByOrphanageId,
   getSocialWorkerNameListByOrphanageId,
   getProfileVersion,
+  getProfileCountForOrphanage,
+  getStaffCountForOrphanage,
+  getParentCountForOrphanage,
 } from "../controllers/profileController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { upload } from "../middleware/s3UploadMiddleware.js";
@@ -44,41 +47,62 @@ router
   .get(protect, getSocialWorkerProfileList);
 router.route("/getParentProfileList").get(protect, getParentProfileList);
 
-router.route("/createChildProfile").post(protect,upload.fields([
-  {name: 'MedicalDoc'},
-  {name: 'Photograph'},
-  {name: 'ChildProtectionCertificate'},
-  {name: 'BirthCertificate'},
-  {name: 'MothersBirthCertificate'},
-  {name: 'FathersBirthCertificate'}
-]), createChildProfile);
-router.route("/createStaffProfile").post(protect,upload.fields([
-  {name: 'NICDoc'},
-  {name: 'BirthCertificate'},
-  {name: 'ResidenceCertificate'},
-  {name: 'CharacterCertificate'},
-]), createStaffProfile);
+router
+  .route("/createChildProfile")
+  .post(
+    protect,
+    upload.fields([
+      { name: "MedicalDoc" },
+      { name: "Photograph" },
+      { name: "ChildProtectionCertificate" },
+      { name: "BirthCertificate" },
+      { name: "MothersBirthCertificate" },
+      { name: "FathersBirthCertificate" },
+    ]),
+    createChildProfile
+  );
+router
+  .route("/createStaffProfile")
+  .post(
+    protect,
+    upload.fields([
+      { name: "NICDoc" },
+      { name: "BirthCertificate" },
+      { name: "ResidenceCertificate" },
+      { name: "CharacterCertificate" },
+    ]),
+    createStaffProfile
+  );
 
 router
   .route("/createSocialWorkerProfile")
-  .post(protect,upload.fields([
-    {name: 'NICDoc'},
-    {name: 'BirthCertificate'},
-    {name: 'OccupationCertificate'},
-  ]), createSocialWorkerProfile);
+  .post(
+    protect,
+    upload.fields([
+      { name: "NICDoc" },
+      { name: "BirthCertificate" },
+      { name: "OccupationCertificate" },
+    ]),
+    createSocialWorkerProfile
+  );
 
 router.route("/createManagerProfile").post(protect, createManagerProfile);
 
-
-router.route("/createParentProfile").post(protect,upload.fields([
-  {name: 'NICDocMother'},
-  {name: 'NICDocFather'},
-  {name: 'MarriageCertificate'},
-  {name: 'ResidenceCertificate'},
-  {name: 'MothersBirthCertificate'},
-  {name: 'FathersBirthCertificate'},
-  {name: 'SalaryPaySheet'},
-]), createParentProfile);
+router
+  .route("/createParentProfile")
+  .post(
+    protect,
+    upload.fields([
+      { name: "NICDocMother" },
+      { name: "NICDocFather" },
+      { name: "MarriageCertificate" },
+      { name: "ResidenceCertificate" },
+      { name: "MothersBirthCertificate" },
+      { name: "FathersBirthCertificate" },
+      { name: "SalaryPaySheet" },
+    ]),
+    createParentProfile
+  );
 
 router.route("/deleteChildProfile").delete(protect, deleteChildProfile);
 router.route("/deleteStaffProfile").delete(protect, deleteStaffProfile);
@@ -87,34 +111,58 @@ router
   .delete(protect, deleteSocialWorkerProfile);
 router.route("/deleteParentProfile").delete(protect, deleteParentProfile);
 
-router.route("/editChildProfile").put(protect,upload.fields([
-  {name: 'MedicalDoc'},
-  {name: 'Photograph'},
-  {name: 'ChildProtectionCertificate'},
-  {name: 'BirthCertificate'},
-  {name: 'MothersBirthCertificate'},
-  {name: 'FathersBirthCertificate'}
-]), editChildProfile);
-router.route("/editStaffProfile").put(protect,upload.fields([
-  {name: 'NICDoc'},
-  {name: 'BirthCertificate'},
-  {name: 'ResidenceCertificate'},
-  {name: 'CharacterCertificate'},
-]), editStaffProfile); 
-router.route("/editSocialWorkerProfile").put(protect, upload.fields([
-  {name: 'NICDoc'},
-  {name: 'BirthCertificate'},
-  {name: 'OccupationCertificate'},
-]),editSocialWorkerProfile);
-router.route("/editParentProfile").put(protect,upload.fields([
-  {name: 'NICDocMother'},
-  {name: 'NICDocFather'},
-  {name: 'MarriageCertificate'},
-  {name: 'ResidenceCertificate'},
-  {name: 'MothersBirthCertificate'},
-  {name: 'FathersBirthCertificate'},
-  {name: 'SalaryPaySheet'},
-]), editParentProfile);
+router
+  .route("/editChildProfile")
+  .put(
+    protect,
+    upload.fields([
+      { name: "MedicalDoc" },
+      { name: "Photograph" },
+      { name: "ChildProtectionCertificate" },
+      { name: "BirthCertificate" },
+      { name: "MothersBirthCertificate" },
+      { name: "FathersBirthCertificate" },
+    ]),
+    editChildProfile
+  );
+router
+  .route("/editStaffProfile")
+  .put(
+    protect,
+    upload.fields([
+      { name: "NICDoc" },
+      { name: "BirthCertificate" },
+      { name: "ResidenceCertificate" },
+      { name: "CharacterCertificate" },
+    ]),
+    editStaffProfile
+  );
+router
+  .route("/editSocialWorkerProfile")
+  .put(
+    protect,
+    upload.fields([
+      { name: "NICDoc" },
+      { name: "BirthCertificate" },
+      { name: "OccupationCertificate" },
+    ]),
+    editSocialWorkerProfile
+  );
+router
+  .route("/editParentProfile")
+  .put(
+    protect,
+    upload.fields([
+      { name: "NICDocMother" },
+      { name: "NICDocFather" },
+      { name: "MarriageCertificate" },
+      { name: "ResidenceCertificate" },
+      { name: "MothersBirthCertificate" },
+      { name: "FathersBirthCertificate" },
+      { name: "SalaryPaySheet" },
+    ]),
+    editParentProfile
+  );
 
 router.route("/viewChildProfiles").get(protect, viewChildProfiles);
 router.route("/viewStaffProfile").get(protect, viewStaffProfile);
@@ -145,4 +193,13 @@ router
   .route("/getChildProfileAllDetails")
   .get(protect, getChildProfileAllDetails);
 router.route("/getProfileVersion").get(protect, getProfileVersion);
+router
+  .route("/getProfileCountForOrphanage")
+  .get(protect, getProfileCountForOrphanage);
+router
+  .route("/getStaffCountForOrphanage")
+  .get(protect, getStaffCountForOrphanage);
+router
+  .route("/getParentCountForOrphanage")
+  .get(protect, getParentCountForOrphanage);
 export default router;

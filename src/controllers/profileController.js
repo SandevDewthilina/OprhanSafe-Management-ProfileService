@@ -39,6 +39,9 @@ import {
   getManagerRoleIdAsync,
   getOrphanageIdAsync,
   getUserIdAsync,
+  getProfileCountForOrphanageAsync,
+  getStaffCountForOrphanageAsync,
+  getParentCountForOrphanageAsync,
 } from "../services/profileService.js";
 
 import { RPCRequest } from "../lib/rabbitmq/index.js";
@@ -121,8 +124,8 @@ export const createChildProfile = asyncHandler(async (req, res) => {
     RegisteredBy,
     OrphanageName,
   } = JSON.parse(req.body.otherInfo);
-  const OrphanageId=await getOrphanageIdAsync (OrphanageName);
-  const UserId=await getUserIdAsync(RegisteredBy);
+  const OrphanageId = await getOrphanageIdAsync(OrphanageName);
+  const UserId = await getUserIdAsync(RegisteredBy);
   await createChildProfileAsync(
     FullName,
     DOB,
@@ -148,7 +151,8 @@ export const createChildProfile = asyncHandler(async (req, res) => {
 });
 
 export const createStaffProfile = asyncHandler(async (req, res) => {
-  const {email,
+  const {
+    email,
     username,
     name,
     phoneNumber,
@@ -158,41 +162,44 @@ export const createStaffProfile = asyncHandler(async (req, res) => {
     nic,
     gender,
     dob,
-    employeeType,}= JSON.parse(req.body.otherInfo);
-    
-  const O_Id=await getOrphanageIdAsync (OrphanageName);
-  const orphanageId=O_Id[0].Id;
+    employeeType,
+  } = JSON.parse(req.body.otherInfo);
+
+  const O_Id = await getOrphanageIdAsync(OrphanageName);
+  const orphanageId = O_Id[0].Id;
   let RoleId; // Declare RoleId here
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
     event: "REGISTER_USER",
-    data: {email,
+    data: {
+      email,
       username,
       name,
       phoneNumber,
       password,
-      orphanageId , 
+      orphanageId,
       address,
       nic,
       gender,
-      dob},
+      dob,
+    },
   });
   const results = await getUserByEmailAsync(email);
-  
+
   // Check the employeeType and set RoleId accordingly
   if (employeeType === "orphanageManager") {
     RoleId = await getManagerRoleIdAsync();
-  } else if(employeeType === "orphanageStaff") {
+  } else if (employeeType === "orphanageStaff") {
     RoleId = await getStaffRoleIdAsync();
-  }else {
+  } else {
     // If employeeType is neither "orphanageManager" nor "orphanageStaff", return an error message
     return res.status(400).json({
       success: false,
-      message: "Invalid employeeType. Must be 'orphanageManager' or 'orphanageStaff'.",
+      message:
+        "Invalid employeeType. Must be 'orphanageManager' or 'orphanageStaff'.",
     });
   }
-  await createStaffProfileAsync(results[0].Id,req.files);
+  await createStaffProfileAsync(results[0].Id, req.files);
 
-  
   await createUserRolesAsync(results[0].Id, RoleId[0].Id);
 
   return res.status(200).json({
@@ -217,7 +224,8 @@ export const createManagerProfile = asyncHandler(async (req, res) => {
 });
 
 export const createSocialWorkerProfile = asyncHandler(async (req, res) => {
-  const {email,
+  const {
+    email,
     username,
     name,
     phoneNumber,
@@ -230,21 +238,24 @@ export const createSocialWorkerProfile = asyncHandler(async (req, res) => {
     Category,
     Organization,
     Role,
-    Experience,}= JSON.parse(req.body.otherInfo);
-  const O_Id=await getOrphanageIdAsync (OrphanageName);
-  const orphanageId=O_Id[0].Id;
+    Experience,
+  } = JSON.parse(req.body.otherInfo);
+  const O_Id = await getOrphanageIdAsync(OrphanageName);
+  const orphanageId = O_Id[0].Id;
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
     event: "REGISTER_USER",
-    data: {email,
+    data: {
+      email,
       username,
       name,
       phoneNumber,
       password,
-      orphanageId , 
+      orphanageId,
       address,
       nic,
       gender,
-      dob},
+      dob,
+    },
   });
   const UserId = await getUserByEmailAsync(email);
   const RoleId = await getSocialWorkerRoleIdAsync();
@@ -264,7 +275,8 @@ export const createSocialWorkerProfile = asyncHandler(async (req, res) => {
 });
 
 export const createParentProfile = asyncHandler(async (req, res) => {
-  const {email,
+  const {
+    email,
     username,
     name,
     phoneNumber,
@@ -290,21 +302,24 @@ export const createParentProfile = asyncHandler(async (req, res) => {
     AgePreference,
     GenderPreference,
     NationalityPreference,
-    LanguagePreference,}= JSON.parse(req.body.otherInfo);
-  const O_Id=await getOrphanageIdAsync (OrphanageName);
-  const orphanageId=O_Id[0].Id;
+    LanguagePreference,
+  } = JSON.parse(req.body.otherInfo);
+  const O_Id = await getOrphanageIdAsync(OrphanageName);
+  const orphanageId = O_Id[0].Id;
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
     event: "REGISTER_USER",
-    data: {email,
+    data: {
+      email,
       username,
       name,
       phoneNumber,
       password,
-      orphanageId , 
+      orphanageId,
       address,
       nic,
       gender,
-      dob},
+      dob,
+    },
   });
   const UserId = await getUserByEmailAsync(email);
   const RoleId = await getParentRoleIdAsync();
@@ -341,7 +356,9 @@ export const createParentProfile = asyncHandler(async (req, res) => {
  * Delete Profiles
  */
 export const deleteChildProfile = asyncHandler(async (req, res) => {
-  const { childId, commitMessage, committedByUserName } = JSON.parse(req.body.otherInfo);
+  const { childId, commitMessage, committedByUserName } = JSON.parse(
+    req.body.otherInfo
+  );
   const profileData = await getChildProfileAllDetailsAsync(childId);
   const committedByUserId = await getUserIdAsync(committedByUserName);
   if (profileData) {
@@ -406,8 +423,8 @@ export const editChildProfile = asyncHandler(async (req, res) => {
     ReasonForPlacement,
     OrphanageName,
   } = JSON.parse(req.body.otherInfo);
-  const O_Id=await getOrphanageIdAsync (OrphanageName);
-  const OrphanageId=O_Id[0].Id;
+  const O_Id = await getOrphanageIdAsync(OrphanageName);
+  const OrphanageId = O_Id[0].Id;
   const results = await editChildProfileAsync(
     Id,
     FullName,
@@ -434,7 +451,8 @@ export const editChildProfile = asyncHandler(async (req, res) => {
 });
 
 export const editStaffProfile = asyncHandler(async (req, res) => {
-  const {email,
+  const {
+    email,
     id,
     name,
     phoneNumber,
@@ -443,52 +461,61 @@ export const editStaffProfile = asyncHandler(async (req, res) => {
     nic,
     gender,
     dob,
-    }=JSON.parse(req.body.otherInfo)
-  const O_Id=await getOrphanageIdAsync (OrphanageName);
-  const orphanageId=O_Id[0].Id;
+  } = JSON.parse(req.body.otherInfo);
+  const O_Id = await getOrphanageIdAsync(OrphanageName);
+  const orphanageId = O_Id[0].Id;
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
     event: "UPDATE_USER",
-    data: {email,
+    data: {
+      email,
       name,
       phoneNumber,
-      orphanageId , 
+      orphanageId,
       address,
       nic,
       gender,
       dob,
-      id},
+      id,
+    },
   });
-  const results = await editStaffProfileAsync(req.files,id);
+  const results = await editStaffProfileAsync(req.files, id);
   return res.status(200).json({
     success: true,
     message: "successfully edited staff profile",
   });
 });
 
-export const editSocialWorkerProfile = asyncHandler(async (req, res) => { const {email,
-  name,
-  phoneNumber,
-  OrphanageName,
-  address,
-  nic,
-  gender,
-  dob,
-  Category,
-  Organization,
-  Role,
-  Experience,id,}= JSON.parse(req.body.otherInfo);
-const O_Id=await getOrphanageIdAsync (OrphanageName);
-const orphanageId=O_Id[0].Id;
+export const editSocialWorkerProfile = asyncHandler(async (req, res) => {
+  const {
+    email,
+    name,
+    phoneNumber,
+    OrphanageName,
+    address,
+    nic,
+    gender,
+    dob,
+    Category,
+    Organization,
+    Role,
+    Experience,
+    id,
+  } = JSON.parse(req.body.otherInfo);
+  const O_Id = await getOrphanageIdAsync(OrphanageName);
+  const orphanageId = O_Id[0].Id;
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
     event: "UPDATE_USER",
-    data:  {email,
+    data: {
+      email,
       name,
       phoneNumber,
-      orphanageId , 
+      orphanageId,
       address,
       nic,
       gender,
-      dob,id},
+      dob,
+      id,
+    },
   });
   const UserId = await getUserByEmailAsync(email);
   const results = await editSocialWorkerProfileAsync(
@@ -497,7 +524,7 @@ const orphanageId=O_Id[0].Id;
     Role,
     Experience,
     UserId[0].Id,
-    req.files,
+    req.files
   );
   return res.status(200).json({
     success: true,
@@ -506,7 +533,8 @@ const orphanageId=O_Id[0].Id;
 });
 
 export const editParentProfile = asyncHandler(async (req, res) => {
-  const {email,
+  const {
+    email,
     OrphanageName,
     name,
     phoneNumber,
@@ -531,20 +559,23 @@ export const editParentProfile = asyncHandler(async (req, res) => {
     AgePreference,
     GenderPreference,
     NationalityPreference,
-    LanguagePreference,}= JSON.parse(req.body.otherInfo);
-  const O_Id=await getOrphanageIdAsync (OrphanageName);
-  const orphanageId=O_Id[0].Id;
+    LanguagePreference,
+  } = JSON.parse(req.body.otherInfo);
+  const O_Id = await getOrphanageIdAsync(OrphanageName);
+  const orphanageId = O_Id[0].Id;
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
     event: "UPDATE_USER",
-    data: {email,
+    data: {
+      email,
       name,
       phoneNumber,
-      orphanageId , 
+      orphanageId,
       address,
       nic,
       gender,
       dob,
-      id},
+      id,
+    },
   });
   const UserId = await getUserByEmailAsync(email);
   const results = await editParentProfileAsync(
@@ -743,5 +774,31 @@ export const getProfileVersion = asyncHandler(async (req, res) => {
   return res.status(200).json({
     success: true,
     ProfileVersion: results,
+  });
+});
+
+export const getProfileCountForOrphanage = asyncHandler(async (req, res) => {
+  const result = await getProfileCountForOrphanageAsync(
+    req.userInfo.orphanageId
+  );
+  return res.status(200).json({
+    success: true,
+    count: result[0].count,
+  });
+});
+
+export const getStaffCountForOrphanage = asyncHandler(async (req, res) => {
+  const result = await getStaffCountForOrphanageAsync(req.userInfo.orphanageId);
+  return res.status(200).json({
+    success: true,
+    count: result[0].count,
+  });
+});
+
+export const getParentCountForOrphanage = asyncHandler(async (req, res) => {
+  const result = await getParentCountForOrphanageAsync(req.userInfo.orphanageId);
+  return res.status(200).json({
+    success: true,
+    count: result[0].count,
   });
 });
