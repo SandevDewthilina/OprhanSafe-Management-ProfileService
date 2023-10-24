@@ -804,6 +804,47 @@ export const getUserIdAsync = async (RegisteredBy) => {
   );
 };
 
+// insert an inquiry
+export const createInquiryAsync = async (CreatedBy,Subject,Description) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `INSERT INTO "Inquiries"("CreatedBy", "Subject", "Description")
+    VALUES($1, $2, $3)
+    RETURNING *;`,
+    [CreatedBy,Subject,Description]
+  );
+};
+
+// create Child Profile Delete Request
+export const childProfileDeleteRequestAsync = async (ApprovalId,ChildId,Remark) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    ` INSERT INTO public."ChildProfileDeleteRequest" ("ApprovalId", "ChildProfileId", "Remark")
+    VALUES ($1, $2, $3)
+    RETURNING "Id";`,
+    [ApprovalId,ChildId,Remark]
+  );
+};
+
+// create  a fund
+export const createFundAsync = async (Name, Email, Mobile, TransactionAmount, ApprovalLogId, Description) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    ` INSERT INTO public."Funding" ("Name", "Email", "Mobile", "TransactionAmount", "ApprovalLogId", "Description")
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING "Id";`,
+    [Name, Email, Mobile, TransactionAmount, ApprovalLogId, Description]
+  );
+};
+
+
+// approval log
+export const createApprovalLogAsync = async (State, ReviewedBy, CreatedBy) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `INSERT INTO "ApprovalLog" ("State", "ReviewedBy", "CreatedBy")
+    VALUES ($1, $2, $3)
+    RETURNING "Id";`,
+    [State, ReviewedBy, CreatedBy]
+  );
+};
+
 export const getProfileCountForOrphanageAsync = async (orphanageId) => {
   return await DatabaseHandler.executeSingleQueryAsync(
     `SELECT

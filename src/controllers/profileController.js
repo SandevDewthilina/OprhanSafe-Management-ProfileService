@@ -39,9 +39,13 @@ import {
   getManagerRoleIdAsync,
   getOrphanageIdAsync,
   getUserIdAsync,
+  createInquiryAsync,
+  childProfileDeleteRequestAsync,
+  createFundAsync,
+  createApprovalLogAsync,
   getProfileCountForOrphanageAsync,
   getStaffCountForOrphanageAsync,
-  getParentCountForOrphanageAsync,
+  getParentCountForOrphanageAsync
 } from "../services/profileService.js";
 
 import { RPCRequest } from "../lib/rabbitmq/index.js";
@@ -362,6 +366,9 @@ export const deleteChildProfile = asyncHandler(async (req, res) => {
   );
   const profileData = await getChildProfileAllDetailsAsync(childId);
   const committedByUserId = await getUserByEmailAsync(committedByUserName);
+  const State="DELETED";
+  const ApprovalLogId=await createApprovalLogAsync(State, ReviewedBy, req.userInfo.userId); // reviewed by null value
+  await childProfileDeleteRequestAsync(ApprovalLogId,childId,commitMessage);
   if (profileData) {
     await CreateProfileVersionAsync(
       childId,
@@ -777,7 +784,39 @@ export const getProfileVersion = asyncHandler(async (req, res) => {
     ProfileVersion: results,
   });
 });
+export const createInquiry = asyncHandler(async (req, res) => {
+  const{Subject,Description}= req.body;
+  const CreatedBy=req.userInfo.userId;
+  await createInquiryAsync(CreatedBy,Subject,Description);
 
+  return res.status(200).json({
+    success: true,
+    message: "successfully created an Inquiry",
+  });
+});
+
+export const childProfileDeleteRequest = asyncHandler(async (req, res) => {
+  const{ChildId,Remark}= req.body;
+  const ApprovalId=req.userInfo.userId;
+  await childProfileDeleteRequestAsync(ApprovalId,ChildId,Remark);
+
+  return res.status(200).json({
+    success: true,
+    message: "successfully created childProfileDeleteRequest",
+  });
+});
+
+export const createFund = asyncHandler(async (req, res) => {
+  const{Name, Email, Mobile, TransactionAmount, Description}= req.body;
+  const State="CREATED";
+  const ApprovalLogId=await createApprovalLogAsync(State, ReviewedBy, req.userInfo.userId); // reviewed by null value
+  await createFundAsync(Name, Email, Mobile, TransactionAmount, ApprovalLogId, Description);
+
+  return res.status(200).json({
+    success: true,
+    message: "successfully created childProfileDeleteRequest",
+  });
+});
 export const getProfileCountForOrphanage = asyncHandler(async (req, res) => {
   const result = await getProfileCountForOrphanageAsync(
     req.userInfo.orphanageId
