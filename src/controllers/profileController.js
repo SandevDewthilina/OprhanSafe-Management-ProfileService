@@ -286,7 +286,6 @@ export const createParentProfile = asyncHandler(async (req, res) => {
     name,
     phoneNumber,
     password,
-    OrphanageName,
     address,
     nic,
     gender,
@@ -309,8 +308,8 @@ export const createParentProfile = asyncHandler(async (req, res) => {
     NationalityPreference,
     LanguagePreference,
   } = JSON.parse(req.body.otherInfo);
-  const O_Id = await getOrphanageIdAsync(OrphanageName);
-  const orphanageId = O_Id[0].Id;
+  //const O_Id = await getOrphanageIdAsync(OrphanageName);
+  const orphanageId = req.userInfo.orphanageId;
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
     event: "REGISTER_USER",
     data: {
