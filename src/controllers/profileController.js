@@ -125,11 +125,13 @@ export const createChildProfile = asyncHandler(async (req, res) => {
     BirthFather,
     BirthMother,
     ReasonForPlacement,
-    RegisteredBy,
-    OrphanageName,
+    //RegisteredBy,
+    //OrphanageName,
   } = JSON.parse(req.body.otherInfo);
-  const OrphanageId = await getOrphanageIdAsync(OrphanageName);
-  const UserId = await getUserIdAsync(RegisteredBy);
+  //const OrphanageId = await getOrphanageIdAsync(OrphanageName);
+  const orphanageId = req.userInfo.orphanageId;
+  //const UserId = await getUserIdAsync(RegisteredBy);
+  const UserId = req.userInfo.userId;
   await createChildProfileAsync(
     FullName,
     DOB,
@@ -144,8 +146,10 @@ export const createChildProfile = asyncHandler(async (req, res) => {
     BirthFather,
     BirthMother,
     ReasonForPlacement,
-    UserId[0].Id,
-    OrphanageId[0].Id,
+    //UserId[0].Id,
+    UserId,
+    //OrphanageId[0].Id,
+    orphanageId,
     req.files
   );
   return res.status(200).json({
