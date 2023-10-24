@@ -99,7 +99,7 @@ export const getSocialWorkerProfileList = asyncHandler(async (req, res) => {
 });
 
 export const getParentProfileList = asyncHandler(async (req, res) => {
-  const results = await getParentProfileListAsync();
+  const results = await getParentProfileListAsync(req.userInfo.orphanageId);
   return res.status(200).json({
     success: true,
     parentsProfiles: results,

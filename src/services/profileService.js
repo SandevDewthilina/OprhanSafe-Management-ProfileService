@@ -54,18 +54,20 @@ INNER JOIN
   return results;
 };
 
-export const getParentProfileListAsync = async () => {
+export const getParentProfileListAsync = async (orphanageId) => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
     `select  "NameOfFather",
     "UserId",
   "NameOfMother",
- "Email",
+ "Parent"."Email",
  "MobileOfFather",
 "MobileOfMother",
-"Address"
+"Parent"."Address"
 FROM
-"Parent";`,
-    []
+"Parent"
+INNER JOIN
+"User" ON "User"."Id" = "Parent"."UserId" WHERE "User"."OrphanageId"=$1;`,
+    [orphanageId]
   );
   return results;
 };
