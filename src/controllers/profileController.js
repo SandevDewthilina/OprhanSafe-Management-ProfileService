@@ -234,7 +234,6 @@ export const createSocialWorkerProfile = asyncHandler(async (req, res) => {
     name,
     phoneNumber,
     password,
-    OrphanageName,
     address,
     nic,
     gender,
@@ -244,8 +243,10 @@ export const createSocialWorkerProfile = asyncHandler(async (req, res) => {
     Role,
     Experience,
   } = JSON.parse(req.body.otherInfo);
-  const O_Id = await getOrphanageIdAsync(OrphanageName);
-  const orphanageId = O_Id[0].Id;
+  //const O_Id = await getOrphanageIdAsync(OrphanageName);
+  //console.log(req.userInfo.orphanageId)
+  //const orphanageId = O_Id[0].Id;
+  const orphanageId = req.userInfo.orphanageId;
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
     event: "REGISTER_USER",
     data: {
@@ -367,8 +368,9 @@ export const deleteChildProfile = asyncHandler(async (req, res) => {
   const profileData = await getChildProfileAllDetailsAsync(childId);
   const committedByUserId = await getUserByEmailAsync(committedByUserName);
   const State="DELETED";
+  const ReviewedBy= null;
   const ApprovalLogId=await createApprovalLogAsync(State, ReviewedBy, req.userInfo.userId); // reviewed by null value
-  await childProfileDeleteRequestAsync(ApprovalLogId,childId,commitMessage);
+  await childProfileDeleteRequestAsync(ApprovalLogId[0].Id,childId,commitMessage);
   if (profileData) {
     await CreateProfileVersionAsync(
       childId,
@@ -798,7 +800,7 @@ export const createInquiry = asyncHandler(async (req, res) => {
 export const childProfileDeleteRequest = asyncHandler(async (req, res) => {
   const{ChildId,Remark}= req.body;
   const ApprovalId=req.userInfo.userId;
-  await childProfileDeleteRequestAsync(ApprovalId,ChildId,Remark);
+  await childProfileDeleteRequestAsync(ApprovalId[0].Id,ChildId,Remark);
 
   return res.status(200).json({
     success: true,
@@ -807,10 +809,12 @@ export const childProfileDeleteRequest = asyncHandler(async (req, res) => {
 });
 
 export const createFund = asyncHandler(async (req, res) => {
-  const{Name, Email, Mobile, TransactionAmount, Description}= req.body;
+  const{Name, Email, Mobile,Date, TransactionAmount, Description}= req.body;
   const State="CREATED";
+  const ReviewedBy= null;
   const ApprovalLogId=await createApprovalLogAsync(State, ReviewedBy, req.userInfo.userId); // reviewed by null value
-  await createFundAsync(Name, Email, Mobile, TransactionAmount, ApprovalLogId, Description);
+  //console.log(ApprovalLogId[0].Id);
+  await createFundAsync(Name, Email, Mobile, TransactionAmount, ApprovalLogId[0].Id, Description);
 
   return res.status(200).json({
     success: true,
