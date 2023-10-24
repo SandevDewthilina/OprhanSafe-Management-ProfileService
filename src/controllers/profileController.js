@@ -83,7 +83,7 @@ export const getChildProfileList = asyncHandler(async (req, res) => {
 });
 
 export const getStaffProfileList = asyncHandler(async (req, res) => {
-  const results = await getStaffProfileListAsync();
+  const results = await getStaffProfileListAsync(req.userInfo.orphanageId);
   return res.status(200).json({
     success: true,
     staffProfiles: results,

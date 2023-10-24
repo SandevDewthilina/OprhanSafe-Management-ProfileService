@@ -16,7 +16,7 @@ export const getChildProfilesAsync = async (orphanageId) => {
   return results;
 };
 
-export const getStaffProfileListAsync = async () => {
+export const getStaffProfileListAsync = async (orphanageId) => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
     `select  "User"."Name" AS "UserName",
     "User"."Id" AS "UserId",
@@ -31,8 +31,8 @@ INNER JOIN
 INNER JOIN
 "Role" ON "UserRole"."RoleId" = "Role"."Id"
 WHERE
- "Role"."Name" IN ('systemAdministrator', 'orphanageManager','orphanageStaff');`,
-    []
+ "Role"."Name" IN ('systemAdministrator', 'orphanageManager','orphanageStaff') and "User"."OrphanageId"=$1;`,
+    [orphanageId]
   );
   return results;
 };
