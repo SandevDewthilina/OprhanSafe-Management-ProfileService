@@ -37,7 +37,7 @@ WHERE
   return results;
 };
 
-export const getSocialWorkerProfileListAsync = async () => {
+export const getSocialWorkerProfileListAsync = async (orphanageId) => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
     `select  "User"."Name",
     "User"."Id" AS "workerId",
@@ -48,8 +48,8 @@ export const getSocialWorkerProfileListAsync = async () => {
 FROM
 "User"
 INNER JOIN
-"SocialWorker" ON "User"."Id" = "SocialWorker"."UserId";`,
-    []
+"SocialWorker" ON "User"."Id" = "SocialWorker"."UserId" WHERE "User"."OrphanageId"=$1;`,
+    [orphanageId]
   );
   return results;
 };
