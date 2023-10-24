@@ -60,7 +60,7 @@ import { AUTH_SERVICE_RPC } from "../config/index.js";
  *
  */
 export const getChildProfileList = asyncHandler(async (req, res) => {
-  const childProfiles = await getChildProfilesAsync(req.userInfo);
+  const childProfiles = await getChildProfilesAsync();
   // Remove the timestamp from DateOfBirth
   const formattedChildProfiles = childProfiles.map((profile) => {
     if (profile["DOB"]) {

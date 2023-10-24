@@ -6,13 +6,12 @@ import { uploadSingleFileAsync } from "../lib/aws/index.js";
  *
  */
 
-export const getChildProfilesAsync = async ({orphanageId}) => {
+export const getChildProfilesAsync = async () => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
-    `select "ChildProfile"."FullName", "ChildProfile"."DOB", "ChildProfile"."Gender", "ChildProfile"."DateOfAdmission", o."Name" AS "OrphanageName","ChildProfile"."Id" AS "ChildId" from "ChildProfile"
+    `select "ChildProfile"."FullName", "ChildProfile"."DOB", "ChildProfile"."Gender", "ChildProfile"."DateOfAdmission", "Orphanage"."Name" AS "OrphanageName","ChildProfile"."Id" AS "ChildId" from "ChildProfile"
     INNER JOIN
-      "Orphanage" as o ON "ChildProfile"."OrphanageId" = o."Id"
-      WHERE o."Id" = $1;`,
-    [orphanageId]
+      "Orphanage" ON "ChildProfile"."OrphanageId" = "Orphanage"."Id";`,
+    []
   );
   return results;
 };
