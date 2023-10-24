@@ -32,6 +32,8 @@ import {
   getChildProfileNameListByOrphanageId,
   getSocialWorkerNameListByOrphanageId,
   getProfileVersion,
+  createInquiry,
+  createFund
 } from "../controllers/profileController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { upload } from "../middleware/s3UploadMiddleware.js";
@@ -145,4 +147,7 @@ router
   .route("/getChildProfileAllDetails")
   .get(protect, getChildProfileAllDetails);
 router.route("/getProfileVersion").get(protect, getProfileVersion);
+
+router.route("/createInquiry").post(protect, createInquiry);
+router.route("/createFund").post(protect, createFund);
 export default router;
