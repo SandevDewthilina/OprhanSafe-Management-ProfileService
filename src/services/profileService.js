@@ -1,5 +1,7 @@
 import DatabaseHandler from "../lib/database/DatabaseHandler.js";
 import { uploadSingleFileAsync } from "../lib/aws/index.js";
+import {createChannel, publishMessage} from "../lib/rabbitmq/index.js"
+import { ADMIN_SERVICE_BINDING_KEY } from "../config/index.js";
 
 /**
  * get profile lists
@@ -77,6 +79,7 @@ export const getParentProfileListAsync = async (orphanageId) => {
     "UserId",
   "NameOfMother",
  "Parent"."Email",
+ "User"."Name" as Name,
  "MobileOfFather",
 "MobileOfMother",
 "Parent"."Address"
@@ -266,6 +269,14 @@ export const createParentProfileAsync = async (
       file
     );
   }
+
+  publishMessage(await createChannel(), ADMIN_SERVICE_BINDING_KEY, {
+    event: 'MATCHPARENTCHILD',
+    data: {
+      parentId: result[0].Id
+    }
+  })
+
 };
 
 /**

@@ -29,7 +29,7 @@ export const createChannel = async () => {
 
 // publish a message
 export const publishMessage = (channel, binding_key, message) => {
-  channel.publish(EXCHANGE_NAME, binding_key, Buffer.from(message));
+  channel.publish(EXCHANGE_NAME, binding_key, Buffer.from(JSON.stringify(message)));
   console.log("Sent: ", message);
 };
 
