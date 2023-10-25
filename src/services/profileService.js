@@ -1,6 +1,6 @@
 import DatabaseHandler from "../lib/database/DatabaseHandler.js";
 import { uploadSingleFileAsync } from "../lib/aws/index.js";
-import {createChannel, publishMessage} from "../lib/rabbitmq/index.js"
+import { createChannel, publishMessage } from "../lib/rabbitmq/index.js";
 import { ADMIN_SERVICE_BINDING_KEY } from "../config/index.js";
 
 /**
@@ -33,7 +33,7 @@ export const viewChildProfilesForParentsAsync = async (userId) => {
   INNER JOIN "ParentChildMatchMapping" AS pc ON "ChildProfile"."Id"= pc."ChildProfileId"
 	LEFT JOIN "ChildProfileRequest" AS cp ON cp."ChildProfileId" = "ChildProfile"."Id"
 	LEFT JOIN "ApprovalLog" AS a ON cp."ApprovalId" = a."Id"
-    WHERE pc."ParentId" = (SELECT "Id" FROM "Parent" AS p WHERE p."UserId" = $1 )`,
+    WHERE pc."ParentId" = (SELECT "Id" FROM "Parent" AS p WHERE p."UserId" = $1 ) AND a."CreatedBy" = $1`,
     [userId]
   );
   return results;
@@ -275,12 +275,11 @@ export const createParentProfileAsync = async (
   }
 
   publishMessage(await createChannel(), ADMIN_SERVICE_BINDING_KEY, {
-    event: 'MATCHPARENTCHILD',
+    event: "MATCHPARENTCHILD",
     data: {
-      parentId: result[0].Id
-    }
-  })
-
+      parentId: result[0].Id,
+    },
+  });
 };
 
 /**
