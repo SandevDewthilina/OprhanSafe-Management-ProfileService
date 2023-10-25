@@ -6,12 +6,12 @@ import { uploadSingleFileAsync } from "../lib/aws/index.js";
  *
  */
 
-export const getChildProfilesAsync = async () => {
+export const getChildProfilesAsync = async (orphanageId) => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
     `select "ChildProfile"."FullName", "ChildProfile"."DOB", "ChildProfile"."Gender", "ChildProfile"."DateOfAdmission", "Orphanage"."Name" AS "OrphanageName","ChildProfile"."Id" AS "ChildId" from "ChildProfile"
     INNER JOIN
-      "Orphanage" ON "ChildProfile"."OrphanageId" = "Orphanage"."Id";`,
-    []
+      "Orphanage" ON "ChildProfile"."OrphanageId" = "Orphanage"."Id" WHERE "ChildProfile"."OrphanageId"=$1;`,
+    [orphanageId]
   );
   return results;
 };
@@ -33,7 +33,7 @@ export const viewChildProfilesForParentsAsync = async (userId) => {
   return results;
 };
 
-export const getStaffProfileListAsync = async () => {
+export const getStaffProfileListAsync = async (orphanageId) => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
     `select  "User"."Name" AS "UserName",
     "User"."Id" AS "UserId",
@@ -48,13 +48,13 @@ INNER JOIN
 INNER JOIN
 "Role" ON "UserRole"."RoleId" = "Role"."Id"
 WHERE
- "Role"."Name" IN ('systemAdministrator', 'orphanageManager','orphanageStaff');`,
-    []
+ "Role"."Name" IN ('systemAdministrator', 'orphanageManager','orphanageStaff') and "User"."OrphanageId"=$1;`,
+    [orphanageId]
   );
   return results;
 };
 
-export const getSocialWorkerProfileListAsync = async () => {
+export const getSocialWorkerProfileListAsync = async (orphanageId) => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
     `select  "User"."Name",
     "User"."Id" AS "workerId",
@@ -65,24 +65,26 @@ export const getSocialWorkerProfileListAsync = async () => {
 FROM
 "User"
 INNER JOIN
-"SocialWorker" ON "User"."Id" = "SocialWorker"."UserId";`,
-    []
+"SocialWorker" ON "User"."Id" = "SocialWorker"."UserId" WHERE "User"."OrphanageId"=$1;`,
+    [orphanageId]
   );
   return results;
 };
 
-export const getParentProfileListAsync = async () => {
+export const getParentProfileListAsync = async (orphanageId) => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
     `select  "NameOfFather",
     "UserId",
   "NameOfMother",
- "Email",
+ "Parent"."Email",
  "MobileOfFather",
 "MobileOfMother",
-"Address"
+"Parent"."Address"
 FROM
-"Parent";`,
-    []
+"Parent"
+INNER JOIN
+"User" ON "User"."Id" = "Parent"."UserId" WHERE "User"."OrphanageId"=$1;`,
+    [orphanageId]
   );
   return results;
 };
