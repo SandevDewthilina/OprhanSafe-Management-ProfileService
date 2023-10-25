@@ -36,7 +36,8 @@ import {
   createFund,
   getProfileCountForOrphanage,
   getStaffCountForOrphanage,
-  getParentCountForOrphanage
+  getParentCountForOrphanage,
+  viewChildProfilesForParents,
 } from "../controllers/profileController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { upload } from "../middleware/s3UploadMiddleware.js";
@@ -167,6 +168,9 @@ router
   );
 
 router.route("/viewChildProfiles").get(protect, viewChildProfiles);
+router
+  .route("/viewChildProfilesForParents")
+  .get(protect, viewChildProfilesForParents);
 router.route("/viewStaffProfile").get(protect, viewStaffProfile);
 router.route("/viewSocialWorkerProfile").get(protect, viewSocialWorkerProfile);
 router.route("/viewParentProfile").get(protect, viewParentProfile);

@@ -16,6 +16,23 @@ export const getChildProfilesAsync = async (orphanageId) => {
   return results;
 };
 
+export const viewChildProfilesForParentsAsync = async (userId) => {
+  const results = await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT
+      "ChildProfile"."FullName",
+      "ChildProfile"."DOB",
+      "ChildProfile"."Gender",
+      "ChildProfile"."DateOfAdmission",
+      "Orphanage"."Name" AS "OrphanageName"
+    FROM "ChildProfile"
+	  INNER JOIN "Orphanage" ON "ChildProfile"."OrphanageId" = "Orphanage"."Id"
+    INNER JOIN "ParentChildMatchMapping" AS pc ON "ChildProfile"."Id"= pc."ChildProfileId"
+    WHERE pc."ParentId" = (SELECT "Id" FROM "Parent" AS p WHERE p."UserId" = $1 )`,
+    [userId]
+  );
+  return results;
+};
+
 export const getStaffProfileListAsync = async (orphanageId) => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
     `select  "User"."Name" AS "UserName",
@@ -807,27 +824,38 @@ export const getUserIdAsync = async (RegisteredBy) => {
 };
 
 // insert an inquiry
-export const createInquiryAsync = async (CreatedBy,Subject,Description) => {
+export const createInquiryAsync = async (CreatedBy, Subject, Description) => {
   return await DatabaseHandler.executeSingleQueryAsync(
     `INSERT INTO "Inquiries"("CreatedBy", "Subject", "Description")
     VALUES($1, $2, $3)
     RETURNING *;`,
-    [CreatedBy,Subject,Description]
+    [CreatedBy, Subject, Description]
   );
 };
 
 // create Child Profile Delete Request
-export const childProfileDeleteRequestAsync = async (ApprovalId,ChildId,Remark) => {
+export const childProfileDeleteRequestAsync = async (
+  ApprovalId,
+  ChildId,
+  Remark
+) => {
   return await DatabaseHandler.executeSingleQueryAsync(
     ` INSERT INTO public."ChildProfileDeleteRequest" ("ApprovalId", "ChildProfileId", "Remark")
     VALUES ($1, $2, $3)
     RETURNING "Id";`,
-    [ApprovalId,ChildId,Remark]
+    [ApprovalId, ChildId, Remark]
   );
 };
 
 // create  a fund
-export const createFundAsync = async (Name, Email, Mobile, TransactionAmount, ApprovalLogId, Description) => {
+export const createFundAsync = async (
+  Name,
+  Email,
+  Mobile,
+  TransactionAmount,
+  ApprovalLogId,
+  Description
+) => {
   return await DatabaseHandler.executeSingleQueryAsync(
     ` INSERT INTO public."Funding" ("Name", "Email", "Mobile", "TransactionAmount", "ApprovalLogId", "Description")
     VALUES ($1, $2, $3, $4, $5, $6)
@@ -835,7 +863,6 @@ export const createFundAsync = async (Name, Email, Mobile, TransactionAmount, Ap
     [Name, Email, Mobile, TransactionAmount, ApprovalLogId, Description]
   );
 };
-
 
 // approval log
 export const createApprovalLogAsync = async (State, ReviewedBy, CreatedBy) => {
