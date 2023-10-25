@@ -13,3 +13,7 @@ CREATE TABLE "ProfileVersion" (
     FOREIGN KEY ("CommittedBy")
       REFERENCES "User"("Id") ON DELETE CASCADE
 );
+
+
+ALTER TABLE "SocialWorker"
+ALTER COLUMN "Category" TYPE character varying(50);
