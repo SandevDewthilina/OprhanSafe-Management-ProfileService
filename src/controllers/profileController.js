@@ -61,7 +61,7 @@ import { AUTH_SERVICE_RPC } from "../config/index.js";
  *
  */
 export const getChildProfileList = asyncHandler(async (req, res) => {
-  const childProfiles = await getChildProfilesAsync();
+  const childProfiles = await getChildProfilesAsync(req.userInfo.orphanageId);
   // Remove the timestamp from DateOfBirth
   const formattedChildProfiles = childProfiles.map((profile) => {
     if (profile["DOB"]) {
@@ -84,7 +84,7 @@ export const getChildProfileList = asyncHandler(async (req, res) => {
 });
 
 export const getStaffProfileList = asyncHandler(async (req, res) => {
-  const results = await getStaffProfileListAsync();
+  const results = await getStaffProfileListAsync(req.userInfo.orphanageId);
   return res.status(200).json({
     success: true,
     staffProfiles: results,
@@ -92,7 +92,7 @@ export const getStaffProfileList = asyncHandler(async (req, res) => {
 });
 
 export const getSocialWorkerProfileList = asyncHandler(async (req, res) => {
-  const results = await getSocialWorkerProfileListAsync();
+  const results = await getSocialWorkerProfileListAsync(req.userInfo.orphanageId);
   return res.status(200).json({
     success: true,
     socialWorkerProfiles: results,
@@ -100,7 +100,7 @@ export const getSocialWorkerProfileList = asyncHandler(async (req, res) => {
 });
 
 export const getParentProfileList = asyncHandler(async (req, res) => {
-  const results = await getParentProfileListAsync();
+  const results = await getParentProfileListAsync(req.userInfo.orphanageId);
   return res.status(200).json({
     success: true,
     parentsProfiles: results,
@@ -126,11 +126,13 @@ export const createChildProfile = asyncHandler(async (req, res) => {
     BirthFather,
     BirthMother,
     ReasonForPlacement,
-    RegisteredBy,
-    OrphanageName,
+    //RegisteredBy,
+    //OrphanageName,
   } = JSON.parse(req.body.otherInfo);
-  const OrphanageId = await getOrphanageIdAsync(OrphanageName);
-  const UserId = await getUserIdAsync(RegisteredBy);
+  //const OrphanageId = await getOrphanageIdAsync(OrphanageName);
+  const orphanageId = req.userInfo.orphanageId;
+  //const UserId = await getUserIdAsync(RegisteredBy);
+  const UserId = req.userInfo.userId;
   await createChildProfileAsync(
     FullName,
     DOB,
@@ -145,8 +147,10 @@ export const createChildProfile = asyncHandler(async (req, res) => {
     BirthFather,
     BirthMother,
     ReasonForPlacement,
-    UserId[0].Id,
-    OrphanageId[0].Id,
+    //UserId[0].Id,
+    UserId,
+    //OrphanageId[0].Id,
+    orphanageId,
     req.files
   );
   return res.status(200).json({
@@ -162,7 +166,7 @@ export const createStaffProfile = asyncHandler(async (req, res) => {
     name,
     phoneNumber,
     password,
-    OrphanageName,
+    //OrphanageName,
     address,
     nic,
     gender,
@@ -170,8 +174,8 @@ export const createStaffProfile = asyncHandler(async (req, res) => {
     employeeType,
   } = JSON.parse(req.body.otherInfo);
 
-  const O_Id = await getOrphanageIdAsync(OrphanageName);
-  const orphanageId = O_Id[0].Id;
+  //const O_Id = await getOrphanageIdAsync(OrphanageName);
+  const orphanageId = req.userInfo.orphanageId;
   let RoleId; // Declare RoleId here
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
     event: "REGISTER_USER",
@@ -235,7 +239,6 @@ export const createSocialWorkerProfile = asyncHandler(async (req, res) => {
     name,
     phoneNumber,
     password,
-    OrphanageName,
     address,
     nic,
     gender,
@@ -245,8 +248,10 @@ export const createSocialWorkerProfile = asyncHandler(async (req, res) => {
     Role,
     Experience,
   } = JSON.parse(req.body.otherInfo);
-  const O_Id = await getOrphanageIdAsync(OrphanageName);
-  const orphanageId = O_Id[0].Id;
+  //const O_Id = await getOrphanageIdAsync(OrphanageName);
+  //console.log(req.userInfo.orphanageId)
+  //const orphanageId = O_Id[0].Id;
+  const orphanageId = req.userInfo.orphanageId;
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
     event: "REGISTER_USER",
     data: {
@@ -286,7 +291,6 @@ export const createParentProfile = asyncHandler(async (req, res) => {
     name,
     phoneNumber,
     password,
-    OrphanageName,
     address,
     nic,
     gender,
@@ -309,8 +313,8 @@ export const createParentProfile = asyncHandler(async (req, res) => {
     NationalityPreference,
     LanguagePreference,
   } = JSON.parse(req.body.otherInfo);
-  const O_Id = await getOrphanageIdAsync(OrphanageName);
-  const orphanageId = O_Id[0].Id;
+  //const O_Id = await getOrphanageIdAsync(OrphanageName);
+  const orphanageId = req.userInfo.orphanageId;
   const response = await RPCRequest(AUTH_SERVICE_RPC, {
     event: "REGISTER_USER",
     data: {
@@ -800,9 +804,9 @@ export const createInquiry = asyncHandler(async (req, res) => {
 });
 
 export const childProfileDeleteRequest = asyncHandler(async (req, res) => {
-  const { ChildId, Remark } = req.body;
-  const ApprovalId = req.userInfo.userId;
-  await childProfileDeleteRequestAsync(ApprovalId, ChildId, Remark);
+  const{ChildId,Remark}= req.body;
+  const ApprovalId=req.userInfo.userId;
+  await childProfileDeleteRequestAsync(ApprovalId[0].Id,ChildId,Remark);
 
   return res.status(200).json({
     success: true,
@@ -811,21 +815,12 @@ export const childProfileDeleteRequest = asyncHandler(async (req, res) => {
 });
 
 export const createFund = asyncHandler(async (req, res) => {
-  const { Name, Email, Mobile, TransactionAmount, Description } = req.body;
-  const State = "CREATED";
-  const ApprovalLogId = await createApprovalLogAsync(
-    State,
-    ReviewedBy,
-    req.userInfo.userId
-  ); // reviewed by null value
-  await createFundAsync(
-    Name,
-    Email,
-    Mobile,
-    TransactionAmount,
-    ApprovalLogId,
-    Description
-  );
+  const{Name, Email, Mobile,Date, TransactionAmount, Description}= req.body;
+  const State="CREATED";
+  const ReviewedBy= null;
+  const ApprovalLogId=await createApprovalLogAsync(State, ReviewedBy, req.userInfo.userId); // reviewed by null value
+  //console.log(ApprovalLogId[0].Id);
+  await createFundAsync(Name, Email, Mobile, TransactionAmount, ApprovalLogId[0].Id, Description);
 
   return res.status(200).json({
     success: true,
