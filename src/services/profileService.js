@@ -23,10 +23,14 @@ export const viewChildProfilesForParentsAsync = async (userId) => {
       "ChildProfile"."DOB",
       "ChildProfile"."Gender",
       "ChildProfile"."DateOfAdmission",
-      "Orphanage"."Name" AS "OrphanageName"
+      "Orphanage"."Name" AS "OrphanageName",
+      "ChildProfile"."Id",
+	  a."State"
     FROM "ChildProfile"
-	  INNER JOIN "Orphanage" ON "ChildProfile"."OrphanageId" = "Orphanage"."Id"
-    INNER JOIN "ParentChildMatchMapping" AS pc ON "ChildProfile"."Id"= pc."ChildProfileId"
+	INNER JOIN "Orphanage" ON "ChildProfile"."OrphanageId" = "Orphanage"."Id"
+  INNER JOIN "ParentChildMatchMapping" AS pc ON "ChildProfile"."Id"= pc."ChildProfileId"
+	LEFT JOIN "ChildProfileRequest" AS cp ON cp."ChildProfileId" = "ChildProfile"."Id"
+	LEFT JOIN "ApprovalLog" AS a ON cp."ApprovalId" = a."Id"
     WHERE pc."ParentId" = (SELECT "Id" FROM "Parent" AS p WHERE p."UserId" = $1 )`,
     [userId]
   );
