@@ -269,7 +269,7 @@ export const createParentProfileAsync = async (
   for (const fieldName in files) {
     const file = files[fieldName][0];
     await uploadSingleFileAsync(
-      `parentFiles/${result[0].Id}/${fieldName}/`,
+      `parentFiles/${result[0].UserId}/${fieldName}/`,
       file
     );
   }
