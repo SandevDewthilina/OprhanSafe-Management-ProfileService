@@ -36,7 +36,8 @@ import {
   createFund,
   getProfileCountForOrphanage,
   getStaffCountForOrphanage,
-  getParentCountForOrphanage
+  getParentCountForOrphanage,
+  getDocumentSetOfChild
 } from "../controllers/profileController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { upload } from "../middleware/s3UploadMiddleware.js";
@@ -206,4 +207,6 @@ router
 router
   .route("/getParentCountForOrphanage")
   .get(protect, getParentCountForOrphanage);
+
+router.route("/getChildDocs").get(protect, getDocumentSetOfChild)
 export default router;
