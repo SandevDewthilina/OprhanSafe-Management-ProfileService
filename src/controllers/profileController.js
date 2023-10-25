@@ -45,7 +45,8 @@ import {
   createApprovalLogAsync,
   getProfileCountForOrphanageAsync,
   getStaffCountForOrphanageAsync,
-  getParentCountForOrphanageAsync
+  getParentCountForOrphanageAsync,
+  getInquiryListAsync
 } from "../services/profileService.js";
 
 import { RPCRequest } from "../lib/rabbitmq/index.js";
@@ -847,5 +848,14 @@ export const getParentCountForOrphanage = asyncHandler(async (req, res) => {
   return res.status(200).json({
     success: true,
     count: result[0].count,
+  });
+});
+
+
+export const getInquiryList = asyncHandler(async (req, res) => {
+  const result = await getInquiryListAsync();
+  return res.status(200).json({
+    success: true,
+    Inquiries: result,
   });
 });
