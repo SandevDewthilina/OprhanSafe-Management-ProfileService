@@ -51,6 +51,7 @@ import {
 
 import { RPCRequest } from "../lib/rabbitmq/index.js";
 import { AUTH_SERVICE_RPC } from "../config/index.js";
+import { listFilesInPathAsync } from "../lib/aws/index.js";
 
 // @desc notification broadcast
 // route POST /api/notifications/broadcast
@@ -827,6 +828,7 @@ export const createFund = asyncHandler(async (req, res) => {
     message: "successfully created childProfileDeleteRequest",
   });
 });
+
 export const getProfileCountForOrphanage = asyncHandler(async (req, res) => {
   const result = await getProfileCountForOrphanageAsync(
     req.userInfo.orphanageId
@@ -853,6 +855,12 @@ export const getParentCountForOrphanage = asyncHandler(async (req, res) => {
     success: true,
     count: result[0].count,
   });
+});
+
+export const getDocumentSetOfChild = asyncHandler(async (req, res) => {
+  return res.status(200).json({
+    url: await listFilesInPathAsync(req.query.path)
+  })
 });
 
 export const viewChildProfilesForParents = asyncHandler(async (req, res) => {
