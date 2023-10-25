@@ -1,5 +1,6 @@
 import asyncHandler from "express-async-handler";
 import {
+  viewChildProfilesForParentsAsync,
   getChildProfilesAsync,
   getStaffProfileListAsync,
   getSocialWorkerProfileListAsync,
@@ -51,6 +52,7 @@ import {
 
 import { RPCRequest } from "../lib/rabbitmq/index.js";
 import { AUTH_SERVICE_RPC } from "../config/index.js";
+import { listFilesInPathAsync } from "../lib/aws/index.js";
 
 // @desc notification broadcast
 // route POST /api/notifications/broadcast
@@ -365,16 +367,18 @@ export const createParentProfile = asyncHandler(async (req, res) => {
  * Delete Profiles
  */
 export const deleteChildProfile = asyncHandler(async (req, res) => {
-
   const { childId, commitMessage, committedByUserName } = JSON.parse(
     req.body.otherInfo
   );
   const profileData = await getChildProfileAllDetailsAsync(childId);
   const committedByUserId = await getUserByEmailAsync(committedByUserName);
-  const State="DELETED";
-  const ReviewedBy= null;
-  const ApprovalLogId=await createApprovalLogAsync(State, ReviewedBy, req.userInfo.userId); // reviewed by null value
-  await childProfileDeleteRequestAsync(ApprovalLogId[0].Id,childId,commitMessage);
+  const State = "DELETED";
+  const ApprovalLogId = await createApprovalLogAsync(
+    State,
+    ReviewedBy,
+    req.userInfo.userId
+  ); // reviewed by null value
+  await childProfileDeleteRequestAsync(ApprovalLogId, childId, commitMessage);
   if (profileData) {
     await CreateProfileVersionAsync(
       childId,
@@ -791,9 +795,9 @@ export const getProfileVersion = asyncHandler(async (req, res) => {
   });
 });
 export const createInquiry = asyncHandler(async (req, res) => {
-  const{Subject,Description}= req.body;
-  const CreatedBy=req.userInfo.userId;
-  await createInquiryAsync(CreatedBy,Subject,Description);
+  const { Subject, Description } = req.body;
+  const CreatedBy = req.userInfo.userId;
+  await createInquiryAsync(CreatedBy, Subject, Description);
 
   return res.status(200).json({
     success: true,
@@ -825,6 +829,7 @@ export const createFund = asyncHandler(async (req, res) => {
     message: "successfully created childProfileDeleteRequest",
   });
 });
+
 export const getProfileCountForOrphanage = asyncHandler(async (req, res) => {
   const result = await getProfileCountForOrphanageAsync(
     req.userInfo.orphanageId
@@ -844,7 +849,9 @@ export const getStaffCountForOrphanage = asyncHandler(async (req, res) => {
 });
 
 export const getParentCountForOrphanage = asyncHandler(async (req, res) => {
-  const result = await getParentCountForOrphanageAsync(req.userInfo.orphanageId);
+  const result = await getParentCountForOrphanageAsync(
+    req.userInfo.orphanageId
+  );
   return res.status(200).json({
     success: true,
     count: result[0].count,
@@ -857,5 +864,19 @@ export const getInquiryList = asyncHandler(async (req, res) => {
   return res.status(200).json({
     success: true,
     Inquiries: result,
+  });
+});
+
+export const getDocumentSetOfChild = asyncHandler(async (req, res) => {
+  return res.status(200).json({
+    url: await listFilesInPathAsync(req.query.path)
+  })
+});
+
+export const viewChildProfilesForParents = asyncHandler(async (req, res) => {
+  const result = await viewChildProfilesForParentsAsync(req.userInfo.userId);
+  return res.status(200).json({
+    success: true,
+    profile: result,
   });
 });

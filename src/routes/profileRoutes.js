@@ -37,6 +37,8 @@ import {
   getProfileCountForOrphanage,
   getStaffCountForOrphanage,
   getParentCountForOrphanage,
+  getDocumentSetOfChild,
+  viewChildProfilesForParents,
   getInquiryList
 } from "../controllers/profileController.js";
 import { protect } from "../middleware/authMiddleware.js";
@@ -168,6 +170,9 @@ router
   );
 
 router.route("/viewChildProfiles").get(protect, viewChildProfiles);
+router
+  .route("/viewChildProfilesForParents")
+  .get(protect, viewChildProfilesForParents);
 router.route("/viewStaffProfile").get(protect, viewStaffProfile);
 router.route("/viewSocialWorkerProfile").get(protect, viewSocialWorkerProfile);
 router.route("/viewParentProfile").get(protect, viewParentProfile);
@@ -207,7 +212,7 @@ router
 router
   .route("/getParentCountForOrphanage")
   .get(protect, getParentCountForOrphanage);
-
+  router.route("/getChildDocs").get(protect, getDocumentSetOfChild)
   router
   .route("/getInquiryList")
   .get(protect, getInquiryList);
