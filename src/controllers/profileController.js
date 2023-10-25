@@ -373,12 +373,13 @@ export const deleteChildProfile = asyncHandler(async (req, res) => {
   const profileData = await getChildProfileAllDetailsAsync(childId);
   const committedByUserId = await getUserByEmailAsync(committedByUserName);
   const State = "DELETED";
+  const ReviewedBy= null;
   const ApprovalLogId = await createApprovalLogAsync(
     State,
     ReviewedBy,
     req.userInfo.userId
   ); // reviewed by null value
-  await childProfileDeleteRequestAsync(ApprovalLogId, childId, commitMessage);
+  await childProfileDeleteRequestAsync(ApprovalLogId[0].Id, childId, commitMessage);
   if (profileData) {
     await CreateProfileVersionAsync(
       childId,
