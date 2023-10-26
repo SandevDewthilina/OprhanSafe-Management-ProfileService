@@ -47,6 +47,7 @@ import {
   getProfileCountForOrphanageAsync,
   getStaffCountForOrphanageAsync,
   getParentCountForOrphanageAsync,
+  getInquiryListAsync
 } from "../services/profileService.js";
 
 import { RPCRequest } from "../lib/rabbitmq/index.js";
@@ -372,12 +373,13 @@ export const deleteChildProfile = asyncHandler(async (req, res) => {
   const profileData = await getChildProfileAllDetailsAsync(childId);
   const committedByUserId = await getUserByEmailAsync(committedByUserName);
   const State = "DELETED";
+  const ReviewedBy= null;
   const ApprovalLogId = await createApprovalLogAsync(
     State,
     ReviewedBy,
     req.userInfo.userId
   ); // reviewed by null value
-  await childProfileDeleteRequestAsync(ApprovalLogId, childId, commitMessage);
+  await childProfileDeleteRequestAsync(ApprovalLogId[0].Id, childId, commitMessage);
   if (profileData) {
     await CreateProfileVersionAsync(
       childId,
@@ -854,6 +856,15 @@ export const getParentCountForOrphanage = asyncHandler(async (req, res) => {
   return res.status(200).json({
     success: true,
     count: result[0].count,
+  });
+});
+
+
+export const getInquiryList = asyncHandler(async (req, res) => {
+  const result = await getInquiryListAsync();
+  return res.status(200).json({
+    success: true,
+    Inquiries: result,
   });
 });
 

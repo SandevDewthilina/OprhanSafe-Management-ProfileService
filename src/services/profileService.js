@@ -269,7 +269,7 @@ export const createParentProfileAsync = async (
   for (const fieldName in files) {
     const file = files[fieldName][0];
     await uploadSingleFileAsync(
-      `parentFiles/${result[0].Id}/${fieldName}/`,
+      `parentFiles/${result[0].UserId}/${fieldName}/`,
       file
     );
   }
@@ -844,6 +844,15 @@ export const createInquiryAsync = async (CreatedBy, Subject, Description) => {
     VALUES($1, $2, $3)
     RETURNING *;`,
     [CreatedBy, Subject, Description]
+  );
+};
+
+// get list of inquires
+export const getInquiryListAsync = async () => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `select "User"."Name","Inquiries"."Id","CreatedBy","Subject","Description" from "Inquiries" 
+    inner join "User" on "Inquiries"."CreatedBy"="User"."Id";`,
+    []
   );
 };
 
