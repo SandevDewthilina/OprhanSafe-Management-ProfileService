@@ -850,7 +850,7 @@ export const createInquiryAsync = async (CreatedBy, Subject, Description) => {
 // get list of inquires
 export const getInquiryListAsync = async () => {
   return await DatabaseHandler.executeSingleQueryAsync(
-    `select "User"."Name","Inquiries"."Id","CreatedBy","Subject","Description" from "Inquiries" 
+    `select "User"."Name","User"."Email","Inquiries"."Id","CreatedBy","Subject","Description" from "Inquiries" 
     inner join "User" on "Inquiries"."CreatedBy"="User"."Id";`,
     []
   );
