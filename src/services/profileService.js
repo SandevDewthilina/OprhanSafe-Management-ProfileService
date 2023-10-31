@@ -1,22 +1,45 @@
 import DatabaseHandler from "../lib/database/DatabaseHandler.js";
-import {uploadSingleFileAsync} from "../lib/aws/index.js"
+import { uploadSingleFileAsync } from "../lib/aws/index.js";
+import { createChannel, publishMessage } from "../lib/rabbitmq/index.js";
+import { ADMIN_SERVICE_BINDING_KEY } from "../config/index.js";
 
 /**
  * get profile lists
  *
  */
 
-export const getChildProfilesAsync = async () => {
+export const getChildProfilesAsync = async (orphanageId) => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
     `select "ChildProfile"."FullName", "ChildProfile"."DOB", "ChildProfile"."Gender", "ChildProfile"."DateOfAdmission", "Orphanage"."Name" AS "OrphanageName","ChildProfile"."Id" AS "ChildId" from "ChildProfile"
     INNER JOIN
-      "Orphanage" ON "ChildProfile"."OrphanageId" = "Orphanage"."Id";`,
-    []
+      "Orphanage" ON "ChildProfile"."OrphanageId" = "Orphanage"."Id" WHERE "ChildProfile"."OrphanageId"=$1;`,
+    [orphanageId]
   );
   return results;
 };
 
-export const getStaffProfileListAsync = async () => {
+export const viewChildProfilesForParentsAsync = async (userId) => {
+  const results = await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT
+      "ChildProfile"."FullName",
+      "ChildProfile"."DOB",
+      "ChildProfile"."Gender",
+      "ChildProfile"."DateOfAdmission",
+      "Orphanage"."Name" AS "OrphanageName",
+      "ChildProfile"."Id",
+	  a."State"
+    FROM "ChildProfile"
+	INNER JOIN "Orphanage" ON "ChildProfile"."OrphanageId" = "Orphanage"."Id"
+  INNER JOIN "ParentChildMatchMapping" AS pc ON "ChildProfile"."Id"= pc."ChildProfileId"
+	LEFT JOIN "ChildProfileRequest" AS cp ON cp."ChildProfileId" = "ChildProfile"."Id"
+	LEFT JOIN "ApprovalLog" AS a ON cp."ApprovalId" = a."Id"
+    WHERE pc."ParentId" = (SELECT "Id" FROM "Parent" AS p WHERE p."UserId" = $1 ) AND a."CreatedBy" = $1`,
+    [userId]
+  );
+  return results;
+};
+
+export const getStaffProfileListAsync = async (orphanageId) => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
     `select  "User"."Name" AS "UserName",
     "User"."Id" AS "UserId",
@@ -31,13 +54,13 @@ INNER JOIN
 INNER JOIN
 "Role" ON "UserRole"."RoleId" = "Role"."Id"
 WHERE
- "Role"."Name" IN ('systemAdministrator', 'orphanageManager','orphanageStaff');`,
-    []
+ "Role"."Name" IN ('systemAdministrator', 'orphanageManager','orphanageStaff') and "User"."OrphanageId"=$1;`,
+    [orphanageId]
   );
   return results;
 };
 
-export const getSocialWorkerProfileListAsync = async () => {
+export const getSocialWorkerProfileListAsync = async (orphanageId) => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
     `select  "User"."Name",
     "User"."Id" AS "workerId",
@@ -48,24 +71,27 @@ export const getSocialWorkerProfileListAsync = async () => {
 FROM
 "User"
 INNER JOIN
-"SocialWorker" ON "User"."Id" = "SocialWorker"."UserId";`,
-    []
+"SocialWorker" ON "User"."Id" = "SocialWorker"."UserId" WHERE "User"."OrphanageId"=$1;`,
+    [orphanageId]
   );
   return results;
 };
 
-export const getParentProfileListAsync = async () => {
+export const getParentProfileListAsync = async (orphanageId) => {
   const results = await DatabaseHandler.executeSingleQueryAsync(
     `select  "NameOfFather",
     "UserId",
   "NameOfMother",
- "Email",
+ "Parent"."Email",
+ "User"."Name" as Name,
  "MobileOfFather",
 "MobileOfMother",
-"Address"
+"Parent"."Address"
 FROM
-"Parent";`,
-    []
+"Parent"
+INNER JOIN
+"User" ON "User"."Id" = "Parent"."UserId" WHERE "User"."OrphanageId"=$1;`,
+    [orphanageId]
   );
   return results;
 };
@@ -138,16 +164,12 @@ export const createChildProfileAsync = async (
   return result;
 };
 
-export const createStaffProfileAsync = async (Id,files) => {
+export const createStaffProfileAsync = async (Id, files) => {
   for (const fieldName in files) {
     const file = files[fieldName][0];
-    await uploadSingleFileAsync(
-      `staffFiles/${Id}/${fieldName}/`,
-      file
-    );
+    await uploadSingleFileAsync(`staffFiles/${Id}/${fieldName}/`, file);
   }
 };
-
 
 export const createUserRolesAsync = async (UserId, RoleId) => {
   await DatabaseHandler.executeSingleQueryAsync(
@@ -156,10 +178,20 @@ export const createUserRolesAsync = async (UserId, RoleId) => {
   );
 };
 
-export const createSocialWorkerProfileAsync = async(Category,Organization,Role,Experience,UserId,files) =>{
-  const result = await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "SocialWorker" ("Category", "Organization", "Role", "Experience", "UserId")
+export const createSocialWorkerProfileAsync = async (
+  Category,
+  Organization,
+  Role,
+  Experience,
+  UserId,
+  files
+) => {
+  const result = await DatabaseHandler.executeSingleQueryAsync(
+    `INSERT INTO "SocialWorker" ("Category", "Organization", "Role", "Experience", "UserId")
   VALUES ($1, $2, $3, $4, $5)
-  RETURNING *;`,[Category,Organization,Role,Experience,UserId]);
+  RETURNING *;`,
+    [Category, Organization, Role, Experience, UserId]
+  );
   for (const fieldName in files) {
     const file = files[fieldName][0];
     await uploadSingleFileAsync(
@@ -167,9 +199,9 @@ export const createSocialWorkerProfileAsync = async(Category,Organization,Role,E
       file
     );
   }
-}
+};
 
-export const createParentProfileAsync = async(
+export const createParentProfileAsync = async (
   NameOfFather,
   NICOfFather,
   MobileOfFather,
@@ -189,8 +221,9 @@ export const createParentProfileAsync = async(
   LanguagePreference,
   UserId,
   files
-) =>{
-  const result = await DatabaseHandler.executeSingleQueryAsync(`INSERT INTO "Parent" (
+) => {
+  const result = await DatabaseHandler.executeSingleQueryAsync(
+    `INSERT INTO "Parent" (
     "NameOfFather",
     "NICOfFather",
     "MobileOfFather",
@@ -211,35 +244,43 @@ export const createParentProfileAsync = async(
     "UserId"
   ) VALUES (
     $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
-  ) RETURNING * ;`,[
-    NameOfFather,
-  NICOfFather,
-  MobileOfFather,
-  DOBOfFather,
-  OccupationOfFather,
-  NameOfMother,
-  NICOfMother,
-  MobileOfMother,
-  DOBOfMother,
-  OccupationOfMother,
-  Address,
-  Email,
-  AdoptionPreference,
-  AgePreference,
-  GenderPreference,
-  NationalityPreference,
-  LanguagePreference,
-  UserId
-  ]);
+  ) RETURNING * ;`,
+    [
+      NameOfFather,
+      NICOfFather,
+      MobileOfFather,
+      DOBOfFather,
+      OccupationOfFather,
+      NameOfMother,
+      NICOfMother,
+      MobileOfMother,
+      DOBOfMother,
+      OccupationOfMother,
+      Address,
+      Email,
+      AdoptionPreference,
+      AgePreference,
+      GenderPreference,
+      NationalityPreference,
+      LanguagePreference,
+      UserId,
+    ]
+  );
   for (const fieldName in files) {
     const file = files[fieldName][0];
     await uploadSingleFileAsync(
-      `parentFiles/${result[0].Id}/${fieldName}/`,
+      `parentFiles/${result[0].UserId}/${fieldName}/`,
       file
     );
   }
-}
 
+  publishMessage(await createChannel(), ADMIN_SERVICE_BINDING_KEY, {
+    event: "MATCHPARENTCHILD",
+    data: {
+      parentId: result[0].Id,
+    },
+  });
+};
 
 /**
  * Delete Profiles
@@ -369,55 +410,47 @@ export const editChildProfileAsync = async (
   );
   for (const fieldName in files) {
     const file = files[fieldName][0];
-    await uploadSingleFileAsync(
-      `childFiles/${Id}/${fieldName}/`,
-      file
-    );
+    await uploadSingleFileAsync(`childFiles/${Id}/${fieldName}/`, file);
   }
 };
 
-export const editStaffProfileAsync = async (files,Id) => {
+export const editStaffProfileAsync = async (files, Id) => {
   for (const fieldName in files) {
     const file = files[fieldName][0];
-    await uploadSingleFileAsync(
-      `staffFiles/${Id}/${fieldName}/`,
-      file
-    );
+    await uploadSingleFileAsync(`staffFiles/${Id}/${fieldName}/`, file);
   }
 };
 
-
-export const editSocialWorkerProfileAsync = async(
-      Category,
-      Organization,
-      Role,
-      Experience,
-      UserId,
-      files
-) =>{
-  await DatabaseHandler.executeSingleQueryAsync(`UPDATE "SocialWorker"
+export const editSocialWorkerProfileAsync = async (
+  Category,
+  Organization,
+  Role,
+  Experience,
+  UserId,
+  files
+) => {
+  await DatabaseHandler.executeSingleQueryAsync(
+    `UPDATE "SocialWorker"
   SET
     "Category" = $1,
     "Organization" = $2,
     "Role" = $3,
     "Experience" = $4
   WHERE
-    "UserId" = $5`,[Category,
-      Organization,
-      Role,
-      Experience,
-      UserId]);
+    "UserId" = $5`,
+    [Category, Organization, Role, Experience, UserId]
+  );
 
-      for (const fieldName in files) {
-        const file = files[fieldName][0];
-        await uploadSingleFileAsync(
-          `socialWorkerFiles/${UserId}/${fieldName}/`,
-          file
-        );
-      }
-}
+  for (const fieldName in files) {
+    const file = files[fieldName][0];
+    await uploadSingleFileAsync(
+      `socialWorkerFiles/${UserId}/${fieldName}/`,
+      file
+    );
+  }
+};
 
-export const editParentProfileAsync = async(
+export const editParentProfileAsync = async (
   NameOfFather,
   NICOfFather,
   MobileOfFather,
@@ -437,8 +470,9 @@ export const editParentProfileAsync = async(
   LanguagePreference,
   UserId,
   files
-) =>{
-  await DatabaseHandler.executeSingleQueryAsync(`
+) => {
+  await DatabaseHandler.executeSingleQueryAsync(
+    `
   UPDATE "Parent"
       SET
         "NameOfFather" = $1,
@@ -459,26 +493,28 @@ export const editParentProfileAsync = async(
         "NationalityPreference" = $16,
         "LanguagePreference" = $17
       WHERE
-        "UserId" = $18`,[
-    NameOfFather,
-  NICOfFather,
-  MobileOfFather,
-  DOBOfFather,
-  OccupationOfFather,
-  NameOfMother,
-  NICOfMother,
-  MobileOfMother,
-  DOBOfMother,
-  OccupationOfMother,
-  Address,
-  Email,
-  AdoptionPreference,
-  AgePreference,
-  GenderPreference,
-  NationalityPreference,
-  LanguagePreference,
-  UserId
-  ]);
+        "UserId" = $18`,
+    [
+      NameOfFather,
+      NICOfFather,
+      MobileOfFather,
+      DOBOfFather,
+      OccupationOfFather,
+      NameOfMother,
+      NICOfMother,
+      MobileOfMother,
+      DOBOfMother,
+      OccupationOfMother,
+      Address,
+      Email,
+      AdoptionPreference,
+      AgePreference,
+      GenderPreference,
+      NationalityPreference,
+      LanguagePreference,
+      UserId,
+    ]
+  );
   for (const fieldName in files) {
     const file = files[fieldName][0];
     await uploadSingleFileAsync(
@@ -486,8 +522,7 @@ export const editParentProfileAsync = async(
       file
     );
   }
-}
-
+};
 
 /**
  * View profiles by managers
@@ -786,7 +821,6 @@ export const getManagerRoleIdAsync = async () => {
   );
 };
 
-
 // get orphanage Id
 export const getOrphanageIdAsync = async (orphanageName) => {
   return await DatabaseHandler.executeSingleQueryAsync(
@@ -803,4 +837,98 @@ export const getUserIdAsync = async (RegisteredBy) => {
   );
 };
 
+// insert an inquiry
+export const createInquiryAsync = async (CreatedBy, Subject, Description) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `INSERT INTO "Inquiries"("CreatedBy", "Subject", "Description")
+    VALUES($1, $2, $3)
+    RETURNING *;`,
+    [CreatedBy, Subject, Description]
+  );
+};
 
+// get list of inquires
+export const getInquiryListAsync = async () => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `select "User"."Name","User"."Email","Inquiries"."Id","CreatedBy","Subject","Description" from "Inquiries" 
+    inner join "User" on "Inquiries"."CreatedBy"="User"."Id";`,
+    []
+  );
+};
+
+// create Child Profile Delete Request
+export const childProfileDeleteRequestAsync = async (
+  ApprovalId,
+  ChildId,
+  Remark
+) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    ` INSERT INTO public."ChildProfileDeleteRequest" ("ApprovalId", "ChildProfileId", "Remark")
+    VALUES ($1, $2, $3)
+    RETURNING "Id";`,
+    [ApprovalId, ChildId, Remark]
+  );
+};
+
+// create  a fund
+export const createFundAsync = async (
+  Name,
+  Email,
+  Mobile,
+  TransactionAmount,
+  ApprovalLogId,
+  Description
+) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    ` INSERT INTO public."Funding" ("Name", "Email", "Mobile", "TransactionAmount", "ApprovalLogId", "Description")
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING "Id";`,
+    [Name, Email, Mobile, TransactionAmount, ApprovalLogId, Description]
+  );
+};
+
+// approval log
+export const createApprovalLogAsync = async (State, ReviewedBy, CreatedBy) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `INSERT INTO "ApprovalLog" ("State", "ReviewedBy", "CreatedBy")
+    VALUES ($1, $2, $3)
+    RETURNING "Id";`,
+    [State, ReviewedBy, CreatedBy]
+  );
+};
+
+export const getProfileCountForOrphanageAsync = async (orphanageId) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT
+      COUNT(c."Id")
+    FROM "ChildProfile" AS c
+    WHERE c."OrphanageId" = $1`,
+    [orphanageId]
+  );
+};
+
+export const getStaffCountForOrphanageAsync = async (orphanageId) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT
+      COUNT(u."Id")
+    FROM "User" AS u
+    INNER JOIN "UserRole" AS ur ON u."Id" = ur."UserId"
+    WHERE u."OrphanageId" = $1
+      AND (ur."RoleId" = (SELECT "Id" FROM "Role" WHERE "Name" = 'orphanageManager')
+        OR ur."RoleId"=(SELECT "Id" FROM "Role" WHERE "Name"='orphanageStaff'))`,
+    [orphanageId]
+  );
+};
+
+export const getParentCountForOrphanageAsync = async (orphanageId) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT
+      COUNT(u."Id")
+    FROM "User" AS u
+    INNER JOIN "UserRole" AS ur ON u."Id" = ur."UserId"
+    WHERE u."OrphanageId" = $1
+      AND ur."RoleId" = (SELECT "Id" FROM "Role" WHERE "Name" = 'parent')
+        `,
+    [orphanageId]
+  );
+};
